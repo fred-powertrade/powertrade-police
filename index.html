@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerTrade Police v5 — Baseline Learning</title>
+<style>
+:root{
+--bg:#05080d;--bg2:#080c12;--card:#0b0f17;--bdr:#16202e;
+--tx:#bcc6d4;--dim:#48576a;--mut:#2c3848;--wh:#e8edf3;
+--acc:#e8a515;--accD:rgba(232,165,21,.12);--accB:rgba(232,165,21,.3);
+--red:#f04040;--redBg:rgba(240,64,64,.07);--redBd:rgba(240,64,64,.22);
+--org:#f59e0b;--orgBg:rgba(245,158,11,.07);--orgBd:rgba(245,158,11,.22);
+--grn:#1fbc58;--grnBg:rgba(31,188,88,.07);--grnBd:rgba(31,188,88,.22);
+--blu:#3b82f6;--bluBg:rgba(59,130,246,.07);
+--cyn:#06b6d4;--prp:#a78bfa;--prpBg:rgba(167,139,250,.07);
+--fm:'JetBrains Mono','Cascadia Code','Fira Code','Consolas',monospace;
+--fs:'JetBrains Mono','Cascadia Code',monospace;
+}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:var(--fs);font-size:11px;overflow-x:hidden}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+select,input,button{outline:none;font-family:var(--fm);font-size:10px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes glow{0%,100%{box-shadow:0 0 6px rgba(232,165,21,.1)}50%{box-shadow:0 0 18px rgba(232,165,21,.35)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes newAlert{from{background:rgba(232,165,21,.08)}to{background:transparent}}
+.spinner{display:inline-block;width:9px;height:9px;border:1.5px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin .5s linear infinite}
+.hdr{background:var(--card);border-bottom:1px solid var(--bdr);padding:6px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-i{width:30px;height:30px;border-radius:5px;background:linear-gradient(135deg,var(--acc),var(--red));display:flex;align-items:center;justify-content:center;font-size:15px;animation:glow 3s infinite;flex-shrink:0}
+.logo-t{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--acc);line-height:1.1}
+.logo-s{font-size:7px;color:var(--dim);letter-spacing:.06em}
+.hdr-r{display:flex;gap:4px;align-items:center;margin-left:auto;flex-wrap:wrap}
+.btn{background:none;border:1px solid var(--bdr);border-radius:3px;color:var(--dim);padding:2px 7px;cursor:pointer;font-size:9px;transition:all .12s;font-family:var(--fm)}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn-a{background:var(--accD);border-color:var(--accB);color:var(--acc)}
+.btn-red{background:var(--redBg);border-color:var(--redBd);color:var(--red)}
+.btn-grn{background:var(--grnBg);border-color:var(--grnBd);color:var(--grn)}
+.dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
+.conn-bar{display:flex;gap:6px;padding:4px 14px;border-bottom:1px solid rgba(22,32,46,.6);font-size:8px;align-items:center;flex-wrap:wrap;background:var(--bg2)}
+.conn{display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;border:1px solid var(--bdr)}
+.conn.ok{border-color:var(--grnBd);background:var(--grnBg)}
+.conn.err{border-color:var(--redBd);background:var(--redBg)}
+.conn.load{border-color:var(--orgBd)}
+.conn.stale{opacity:.4;border-color:var(--bdr)}
+.spot-bar{display:flex;gap:10px;padding:5px 14px;font-size:10px;border-bottom:1px solid var(--bdr);overflow-x:auto;background:var(--bg)}
+.spot-item b{font-weight:800}
+.kpi-bar{display:flex;gap:5px;padding:7px 14px;overflow-x:auto;background:var(--bg)}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:7px 10px;min-width:82px;flex-shrink:0}
+.kpi-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.kpi-v{font-size:17px;font-weight:800;line-height:1.2}
+.kpi-s{font-size:8px;color:var(--mut)}
+.tabs{display:flex;gap:0;padding:0 14px;border-bottom:1px solid var(--bdr);overflow-x:auto;background:var(--bg);position:sticky;top:43px;z-index:99}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:var(--fm);font-size:9px;font-weight:700;padding:6px 9px;letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:all .1s}
+.tab:hover{color:var(--tx)}.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+.tab .cnt{margin-left:3px;background:var(--bdr);padding:0 4px;border-radius:6px;font-size:8px}
+.tab.on .cnt{background:rgba(232,165,21,.15);color:var(--acc)}
+.tab.on .cnt.crit{background:var(--redBg);color:var(--red)}
+.main{padding:8px 14px 20px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:9px;margin-bottom:7px;animation:fadeUp .18s ease}
+.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:3px}
+.card-t{font-size:9px;font-weight:700;letter-spacing:.05em}
+.badge{display:inline-flex;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:700;letter-spacing:.04em}
+.bg-red{color:var(--red);background:var(--redBg);border:1px solid var(--redBd)}
+.bg-org{color:var(--org);background:var(--orgBg);border:1px solid var(--orgBd)}
+.bg-grn{color:var(--grn);background:var(--grnBg);border:1px solid var(--grnBd)}
+.bg-blu{color:var(--blu);background:var(--bluBg)}
+.bg-prp{color:var(--prp);background:var(--prpBg)}
+.bg-acc{color:var(--acc);background:var(--accD)}
+.bg-dim{color:var(--dim);background:rgba(72,87,106,.1)}
+.tbl{width:100%;border-collapse:collapse;font-size:9px}
+.tbl th{padding:4px 6px;text-align:right;color:var(--dim);font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);white-space:nowrap}
+.tbl td{padding:3px 6px;text-align:right;border-bottom:1px solid rgba(22,32,46,.4)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl-w{background:var(--card);border:1px solid var(--bdr);border-radius:4px;overflow:auto;max-height:580px}
+.tbl tr:hover{background:rgba(232,165,21,.025)}
+.filters{display:flex;gap:4px;margin-bottom:7px;flex-wrap:wrap;align-items:center}
+.flt{background:var(--card);border:1px solid var(--bdr);border-radius:3px;color:var(--tx);padding:2px 5px;font-size:9px}
+.alert-row{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:6px 10px;margin-bottom:3px;cursor:pointer;border-left:3px solid var(--org);animation:fadeUp .12s ease}
+.alert-row.crit{border-left-color:var(--red);border-color:var(--redBd)}
+.alert-row.new-alert{animation:newAlert 2s ease}
+.alert-hd{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.alert-t{font-size:10px;font-weight:600;flex:1;min-width:0}
+.alert-d{margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr);display:none;font-size:9px;color:var(--dim);line-height:1.6}
+.alert-row.open .alert-d{display:block}
+.conf-bar{display:inline-block;height:3px;border-radius:2px;background:var(--grn);margin-top:2px}
+.hmap-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:8px;margin-bottom:7px;overflow:hidden}
+.hmap-title{font-size:8px;font-weight:700;color:var(--dim);letter-spacing:.08em;margin-bottom:6px;text-transform:uppercase}
+.hmap-scroll{overflow-x:auto;padding-bottom:4px}
+.hmap-tbl{border-collapse:collapse;font-size:7px}
+.hmap-tbl th,.hmap-tbl td{padding:1px}
+.hmap-tbl th{color:var(--dim);font-weight:600;text-align:center;padding:2px 3px;white-space:nowrap}
+.hmap-tbl th.hmap-atm{color:var(--acc);font-weight:800}
+.hmap-exp{font-weight:700;color:var(--tx);padding:2px 6px 2px 2px !important;white-space:nowrap;text-align:left !important}
+.hmap-cell{width:18px;height:14px;border-radius:2px;cursor:pointer;text-align:center;transition:transform .1s;border:1px solid transparent}
+.hmap-cell:hover{transform:scale(1.3);z-index:10;position:relative;border-color:var(--acc)}
+.hmap-grn{background:rgba(31,188,88,.35)}
+.hmap-yel{background:rgba(245,158,11,.45)}
+.hmap-org{background:rgba(240,100,40,.55)}
+.hmap-red{background:rgba(240,64,64,.45)}
+.hmap-empty{background:transparent;color:var(--mut);text-align:center;font-size:7px}
+.neg{color:var(--red)}.pos{color:var(--grn)}.dim{color:var(--dim)}.acc{color:var(--acc)}
+.risk-hi{color:var(--red)!important;font-weight:700!important}
+.risk-md{color:var(--org)!important;font-weight:600!important}
+.bar{height:5px;border-radius:3px;margin-top:2px}
+.bar-w{background:var(--bdr);border-radius:3px;overflow:hidden}
+.grid{display:grid;gap:7px}
+.g2{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.warn-box{background:var(--orgBg);border:1px solid var(--orgBd);border-radius:4px;padding:7px 9px;margin-bottom:7px;font-size:9px;color:var(--org);line-height:1.5}
+.info-box{background:var(--bluBg);border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:7px 9px;margin-bottom:7px;font-size:9px;color:var(--blu);line-height:1.5}
+.score-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;border:2.5px solid;flex-shrink:0}
+.th-row{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.th-l{font-size:9px;color:var(--dim);width:150px}
+.th-i{width:60px;padding:3px 6px;background:var(--bg);border:1px solid var(--bdr);border-radius:3px;color:var(--acc);text-align:right;font-size:10px}
+.th-u{font-size:8px;color:var(--mut)}
+.preset{display:block;width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:3px;color:var(--tx);padding:5px 9px;text-align:left;margin-bottom:3px;cursor:pointer;font-size:10px}
+.preset:hover{border-color:var(--acc);color:var(--acc)}
+.preset.btn-a{border-color:var(--accB);background:var(--accD);color:var(--acc)}
+.copy-btn{background:none;border:1px solid var(--bdr);border-radius:3px;color:var(--dim);padding:1px 5px;cursor:pointer;font-size:8px;margin-left:4px}
+.copy-btn:hover{border-color:var(--acc);color:var(--acc)}
+.footer{padding:6px 14px;border-top:1px solid var(--bdr);font-size:7px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;background:var(--bg2);gap:4px}
+.empty{padding:20px;text-align:center;color:var(--dim);font-size:11px}
+.gap-alert{color:var(--org);font-size:8px;background:var(--orgBg);border:1px solid var(--orgBd);border-radius:3px;padding:2px 5px;margin:1px;display:inline-block}
+.persist-badge{font-size:7px;color:var(--dim);margin-left:3px}
+.bl-age{font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid var(--bdr);display:inline-flex;align-items:center;gap:3px}
+</style>
+</head>
+<body>
+<div id="app"><div style="display:flex;align-items:center;justify-content:center;height:100vh;gap:10px;color:var(--acc)"><div class="spinner" style="width:20px;height:20px"></div><span style="font-family:var(--fm);font-size:13px;letter-spacing:.08em">CONNECTING TO POWERTRADE POLICE v5...</span></div></div>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// BLACK-SCHOLES + GREEKS
+// ═══════════════════════════════════════════════════════════════════
+const phi=x=>{const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911,s=x<0?-1:1,ax=Math.abs(x)/Math.SQRT2,t=1/(1+p*ax),y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-ax*ax);return .5*(1+s*y)};
+const bsP=(S,K,T,r,v,cp)=>{if(T<=1e-6||v<=1e-6)return Math.max(0,cp==='C'?S-K:K-S);const sq=Math.sqrt(T),d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*sq),d2=d1-v*sq;return cp==='C'?S*phi(d1)-K*Math.exp(-r*T)*phi(d2):K*Math.exp(-r*T)*phi(-d2)-S*phi(-d1)};
+const bsDelta=(S,K,T,r,v,cp)=>{if(T<=1e-6||v<=1e-6)return cp==='C'?(S>=K?1:0):(S>=K?0:-1);const d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T));return cp==='C'?phi(d1):phi(d1)-1};
+const bsVega=(S,K,T,r,v)=>{if(T<=1e-6||v<=1e-6)return 0;const d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T));return S*Math.sqrt(T)*Math.exp(-d1*d1/2)/2.5066282746/100};
+const solveIV=(price,S,K,T,r,cp)=>{if(T<=1e-6||price<=0||S<=0)return null;let v=.5,prevDv=Infinity;for(let i=0;i<60;i++){const p=bsP(S,K,T,r,v,cp),d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T)),vg=S*Math.sqrt(T)*Math.exp(-d1*d1/2)/2.5066282746;if(vg<1e-10)break;const dv=(p-price)/vg;if(Math.abs(dv)>Math.abs(prevDv)*2&&i>5)break;prevDv=dv;v-=dv;if(v<=.001)v=.001;if(v>10)v=10;if(Math.abs(dv)<1e-8)break}return(v>.005&&v<9.9)?v:null};
+
+// ═══════════════════════════════════════════════════════════════════
+// API HELPERS
+// ═══════════════════════════════════════════════════════════════════
+async function fj(url){const t0=performance.now();try{const r=await fetch(url);const lat=Math.round(performance.now()-t0);if(!r.ok)throw new Error(`HTTP ${r.status}`);return{ok:true,data:await r.json(),lat}}catch(e){return{ok:false,err:e.message,lat:Math.round(performance.now()-t0)}}}
+function dTE(d){return Math.max(0,(d.getTime()-Date.now())/864e5)}
+
+// ═══════════════════════════════════════════════════════════════════
+// POWERTRADE
+// ═══════════════════════════════════════════════════════════════════
+function parsePTOpt(sym){const m=sym.match(/^(\w+)-(\d{8})-(\d+)(C|P)$/);if(!m)return null;const[,a,ds,k,cp]=m;const y=parseInt(ds.slice(0,4)),mo=parseInt(ds.slice(4,6))-1,d=parseInt(ds.slice(6,8));const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];return{asset:a,strike:parseInt(k),cp,expiry:`${d}${MN[mo]}${String(y).slice(2)}`,expiryDate:new Date(y,mo,d,8,0,0)}}
+
+async function fetchPT(){
+  const r=await fj('https://api.rest.prod.power.trade/v1/market_data/tradeable_entity/all/summary');
+  if(!r.ok)return{opts:[],perps:[],spots:{},ok:false,lat:r.lat,err:r.err};
+  const opts=[],perps=[],spots={};
+  for(const t of r.data){
+    const bid=t.best_bid?parseFloat(t.best_bid):null,ask=t.best_ask?parseFloat(t.best_ask):null,last=t.last_price?parseFloat(t.last_price):null,idx=t.index_price?parseFloat(t.index_price):null,vol=parseFloat(t.volume)||0,oi=parseFloat(t.open_interest)||0;
+    if(t.product_type==='option'){
+      const p=parsePTOpt(t.symbol);if(!p)continue;
+      const S=idx||0,mid=bid!=null&&ask!=null?(bid+ask)/2:(bid||ask||last||0);
+      const sprd=bid!=null&&ask!=null&&mid>0?((ask-bid)/mid)*100:null;
+      opts.push({ex:'PT',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,last,spot:S,sprd,vol24h:vol,oi,raw:t.symbol,id:t.id});
+      if(S>0)spots[p.asset]=S;
+    } else if(t.product_type==='perpetual_future'){
+      const asset=t.symbol.split('-')[0];const mark=last||((bid||0)+(ask||0))/2;
+      const funding=t.funding_rate?parseFloat(t.funding_rate):null;
+      perps.push({ex:'PT',asset,isPerpetual:true,instrument:t.symbol,mark,bid,ask,last,vol24h:vol,oi,spot:idx||0,funding,basis:idx>0?(mark-idx)/idx*100:0,id:t.id});
+      if(idx>0)spots[asset]=idx;
+    } else if(t.product_type==='index'){
+      const asset=t.symbol.split('-')[0];if(idx>0)spots[asset]=idx;
+    }
+  }
+  return{opts,perps,spots,ok:true,lat:r.lat,count:r.data.length}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DERIBIT (BTC, ETH, SOL)
+// ═══════════════════════════════════════════════════════════════════
+const MO={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+function parseDI(n){const m=n.match(/^(\w+)-(\d{1,2})([A-Z]{3})(\d{2})-(\d+)-(C|P)$/);if(!m)return null;const[,a,day,mon,yr,k,cp]=m,y=2000+parseInt(yr),mo=MO[mon];if(mo===undefined)return null;return{asset:a,strike:parseInt(k),cp,expiry:`${day}${mon}${yr}`,expiryDate:new Date(y,mo,parseInt(day),8,0,0)}}
+async function fetchDeribit(asset){
+  const[oR,fR]=await Promise.all([fj(`https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=${asset}&kind=option`),fj(`https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=${asset}&kind=future`)]);
+  const opts=[],perps=[];
+  if(oR.ok&&oR.data?.result){for(const o of oR.data.result){const p=parseDI(o.instrument_name);if(!p)continue;const S=o.underlying_price||0;if(!S)continue;const bid=(o.bid_price||0)*S,ask=(o.ask_price||0)*S,mark=(o.mark_price||0)*S;const mid=bid>0&&ask>0?(bid+ask)/2:mark;const sprd=mid>0&&bid>0&&ask>0?((ask-bid)/mid)*100:null;opts.push({ex:'Deribit',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:o.mark_iv?o.mark_iv/100:null,sprd,vol24h:o.volume||0,oi:o.open_interest||0,raw:o.instrument_name})}}
+  if(fR.ok&&fR.data?.result){for(const f of fR.data.result){const S=f.underlying_price||0;if(!S)continue;perps.push({ex:'Deribit',asset,isPerpetual:f.instrument_name.includes('PERPETUAL'),instrument:f.instrument_name,mark:f.mark_price||0,bid:f.bid_price||0,ask:f.ask_price||0,vol24h:f.volume||0,oi:f.open_interest||0,spot:S,funding:f.current_funding!=null?f.current_funding:null,basis:S>0?((f.mark_price||S)-S)/S*100:0})}}
+  return{opts,perps,oOk:oR.ok,fOk:fR.ok,lat:Math.max(oR.lat,fR.lat)}}
+
+// ═══════════════════════════════════════════════════════════════════
+// OKX (BTC, ETH)
+// ═══════════════════════════════════════════════════════════════════
+function parseOI(n){const m=n.match(/^(\w+)-USD-(\d{6})-(\d+)-(C|P)$/);if(!m)return null;const[,a,ds,k,cp]=m,y=2000+parseInt(ds.slice(0,2)),mo=parseInt(ds.slice(2,4))-1,d=parseInt(ds.slice(4,6));const mn=Object.keys(MO).find(k=>MO[k]===mo)||'???';return{asset:a,strike:parseInt(k),cp,expiry:`${d}${mn}${ds.slice(0,2)}`,expiryDate:new Date(y,mo,d,8,0,0)}}
+async function fetchOKX(asset){
+  const[oR,sR,iR]=await Promise.all([fj(`https://www.okx.com/api/v5/market/tickers?instType=OPTION&instFamily=${asset}-USD`),fj(`https://www.okx.com/api/v5/market/tickers?instType=SWAP&instFamily=${asset}-USD`),fj(`https://www.okx.com/api/v5/market/index-tickers?instId=${asset}-USD`)]);
+  const opts=[],perps=[];let spot=0;
+  if(iR.ok&&iR.data?.data?.[0])spot=parseFloat(iR.data.data[0].idxPx)||0;
+  if(oR.ok&&oR.data?.data){for(const o of oR.data.data){const p=parseOI(o.instId);if(!p)continue;const S=spot;if(!S)continue;const bid=(parseFloat(o.bidPx)||0)*S,ask=(parseFloat(o.askPx)||0)*S;const mid=bid>0&&ask>0?(bid+ask)/2:0;const sprd=mid>0?((ask-bid)/mid)*100:null;opts.push({ex:'OKX',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:null,sprd,vol24h:parseFloat(o.volCcy24h)||0,oi:parseFloat(o.oi)||0,raw:o.instId})}}
+  if(sR.ok&&sR.data?.data){for(const f of sR.data.data){if(!f.instId.includes(asset))continue;const mk=parseFloat(f.last)||0;perps.push({ex:'OKX',asset,isPerpetual:true,instrument:f.instId,mark:mk,bid:parseFloat(f.bidPx)||0,ask:parseFloat(f.askPx)||0,vol24h:parseFloat(f.volCcy24h)||0,oi:parseFloat(f.oi)||0,spot,funding:f.fundingRate!=null?parseFloat(f.fundingRate):null,basis:spot>0?(mk-spot)/spot*100:0})}}
+  return{opts,perps,oOk:oR.ok,fOk:sR.ok,lat:Math.max(oR.lat,sR.lat||0,iR.lat||0)}}
+
+// ═══════════════════════════════════════════════════════════════════
+// BYBIT (BTC, ETH, SOL)
+// ═══════════════════════════════════════════════════════════════════
+async function fetchBybit(asset){
+  const[oR,lR]=await Promise.all([fj(`https://api.bybit.com/v5/market/tickers?category=option&baseCoin=${asset}`),fj(`https://api.bybit.com/v5/market/tickers?category=linear&symbol=${asset}USDT`)]);
+  const opts=[],perps=[];
+  if(oR.ok&&oR.data?.result?.list){for(const o of oR.data.result.list){const p=parseDI(o.symbol);if(!p)continue;const S=parseFloat(o.underlyingPrice)||0;if(!S)continue;const bid=parseFloat(o.bid1Price)||0,ask=parseFloat(o.ask1Price)||0,mark=parseFloat(o.markPrice)||0;const mid=bid>0&&ask>0?(bid+ask)/2:mark;const sprd=mid>0&&bid>0&&ask>0?((ask-bid)/mid)*100:null;opts.push({ex:'Bybit',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:o.markIv?parseFloat(o.markIv)/100:null,sprd,vol24h:parseFloat(o.volume24h)||0,oi:parseFloat(o.openInterest)||0,raw:o.symbol})}}
+  if(lR.ok&&lR.data?.result?.list){for(const f of lR.data.result.list){const mk=parseFloat(f.markPrice)||parseFloat(f.lastPrice)||0;const S=parseFloat(f.indexPrice)||mk;perps.push({ex:'Bybit',asset,isPerpetual:true,instrument:f.symbol,mark:mk,bid:parseFloat(f.bid1Price)||0,ask:parseFloat(f.ask1Price)||0,vol24h:parseFloat(f.volume24h)||0,oi:parseFloat(f.openInterest)||0,spot:S,funding:f.fundingRate!=null?parseFloat(f.fundingRate):null,basis:S>0?(mk-S)/S*100:0})}}
+  return{opts,perps,oOk:oR.ok,fOk:lR.ok,lat:Math.max(oR.lat,lR.lat)}}
+
+// ═══════════════════════════════════════════════════════════════════
+// COINCALL (BTC, ETH, SOL)
+// ═══════════════════════════════════════════════════════════════════
+function parseCCI(sym){
+  const m=sym.match(/^(\w+)USD-(\d{1,2})([A-Z]{3})(\d{2})-(\d+)-(C|P)$/);
+  if(!m)return null;const[,a,day,mon,yr,k,cp]=m;
+  const y=2000+parseInt(yr),mo=MO[mon];if(mo===undefined)return null;
+  return{asset:a,strike:parseInt(k),cp,expiry:`${day}${mon}${yr}`,expiryDate:new Date(y,mo,parseInt(day),8,0,0)}}
+
+async function fetchCoinCall(asset){
+  const idx=asset+'USD';
+  const[oR,fR,frR]=await Promise.all([
+    fj(`https://api.coincall.com/open/option/getOptionChain/v1/${idx}`),
+    fj(`https://api.coincall.com/open/futures/market/getSymbolInfo/v1`),
+    fj(`https://api.coincall.com/open/public/fundingRate/v1/${idx}`)]);
+  const opts=[],perps=[];let spot=0;
+  if(oR.ok&&oR.data?.data){
+    for(const row of oR.data.data){
+      for(const side of['callOption','putOption']){
+        const o=row[side];if(!o||!o.symbol)continue;
+        const p=parseCCI(o.symbol);if(!p)continue;
+        const S=o.underlyingPrice||0;if(!S)continue;if(S>0)spot=S;
+        const bid=o.bid||0,ask=o.ask||0,mark=o.markPrice||0;
+        const mid=bid>0&&ask>0?(bid+ask)/2:(mark||0);
+        const sprd=mid>0&&bid>0&&ask>0?((ask-bid)/mid)*100:null;
+        const mIv=o.markIv?o.markIv/100:null;
+        opts.push({ex:'CoinCall',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,
+          cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:mIv,sprd,
+          vol24h:o.volume||0,oi:o.openInterest||0,raw:o.symbol})}}}
+  if(fR.ok&&fR.data?.data){
+    for(const f of fR.data.data){
+      if(f.symbol!==idx)continue;
+      const mk=parseFloat(f.markPrice)||parseFloat(f.price)||0;
+      const S=parseFloat(f.indexPrice)||mk;if(S>0)spot=S;
+      const funding=frR.ok&&frR.data?.data?.fundingRate!=null?parseFloat(frR.data.data.fundingRate):null;
+      perps.push({ex:'CoinCall',asset,isPerpetual:true,instrument:f.displayName||`${asset}-PERP`,
+        mark:mk,bid:0,ask:0,last:parseFloat(f.price)||0,
+        vol24h:parseFloat(f.volumeUsd24h)||0,oi:0,spot:S,
+        funding,basis:S>0?(mk-S)/S*100:0})}}
+  return{opts,perps,oOk:oR.ok,fOk:fR.ok,lat:Math.max(oR.lat,fR.lat||0,frR.lat||0),spot}}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE + CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const FEES={PT:{m:.0003,t:.0005},Deribit:{m:.0002,t:.0003},OKX:{m:.0002,t:.0003},Bybit:{m:.0002,t:.0004},CoinCall:{m:.0003,t:.0004}};
+const catCol={PT_WIDE:'org',PT_STALE:'red',PT_CHEAP:'grn',PT_RICH:'prp',MKT_IV:'blu',PERP_ARB:'grn',FUND_ARB:'blu'};
+const catLbl={PT_WIDE:'WIDE',PT_STALE:'STALE',PT_CHEAP:'CHEAP',PT_RICH:'RICH',MKT_IV:'IV ARB',PERP_ARB:'PERP ARB',FUND_ARB:'FUNDING'};
+const catTip={PT_WIDE:'Spread exceeds baseline p95 × multiplier',PT_STALE:'Quote pulled vs baseline or near-expiry',PT_CHEAP:'PT priced below external markets',PT_RICH:'PT priced above external markets',MKT_IV:'IV dislocation vs external exchange',PERP_ARB:'Perp basis divergence PT↔external',FUND_ARB:'Funding rate differential PT↔external'};
+const SLIP=.005;
+const G={tab:'health',loading:true,tick:0,live:true,openA:null,
+  fAsset:'ALL',fCat:'ALL',fSev:'ALL',fProf:false,fPersist:false,
+  hAsset:'ALL',hExpiry:'ALL',hFilter:'ALL',compAsset:'BTC',compExpiry:null,
+  th:{ptVsMkt:20,ivArb:8,perpBps:5,fundBps:6,lowVolPct:10,minExtVol:50000,minExtOI:5,
+      blWarn:1.5,blCrit:3.0},
+  refreshMs:25000,
+  conn:{PT:{ok:false,n:0,lat:0,lastFetch:null},Deribit:{ok:false,n:0,lat:0,lastFetch:null},OKX:{ok:false,n:0,lat:0,lastFetch:null},Bybit:{ok:false,n:0,lat:0,lastFetch:null},CoinCall:{ok:false,n:0,lat:0,lastFetch:null}},
+  ptOpts:[],ptPerps:[],mktOpts:[],mktPerps:[],alerts:[],spots:{},ptItems:[],lastUp:null,errors:[],
+  // Phase 1: Baseline
+  baseline:null,autoBlH:4, // auto-recapture hours (0=off)
+  // Phase 2: Market state + suppression
+  spotHist:{}, // asset -> [{price,time}]
+  suppressed:0,warmup:false};
+let timer=null;
+let _refreshing=false;
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 1: BASELINE SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+function getBands(o){
+  const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:0.5;
+  const monoBand=mono<.05?'ATM':mono<.15?'NEAR':'DEEP';
+  const dte=o.T*365;
+  const dteBand=dte<1?'0D':dte<3?'1-3D':dte<7?'3-7D':dte<30?'7-30D':dte<90?'30-90D':'90D+';
+  return{monoBand,dteBand,key:`${o.asset}-${monoBand}-${dteBand}`}}
+
+function captureBaseline(){
+  const items=G.ptItems;if(!items||!items.length)return null;
+  const bl={timestamp:Date.now(),buckets:{},options:{},quotedCount:0,totalCount:items.length};
+  for(const o of items){
+    const{key}=getBands(o);
+    if(!bl.buckets[key])bl.buckets[key]={spreads:[],quoted:0,total:0,ivs:[]};
+    const b=bl.buckets[key];b.total++;
+    if(o.status==='QUOTED'){b.quoted++;b.spreads.push(o.sprd);if(o.iv)b.ivs.push(o.iv)}
+  }
+  for(const b of Object.values(bl.buckets)){
+    b.spreads.sort((a,c)=>a-c);
+    b.median=b.spreads[Math.floor(b.spreads.length/2)]||null;
+    b.p75=b.spreads[Math.floor(b.spreads.length*0.75)]||null;
+    b.p95=b.spreads[Math.floor(b.spreads.length*0.95)]||null;
+    b.mean=b.spreads.length?b.spreads.reduce((a,c)=>a+c,0)/b.spreads.length:null;
+    b.quotedPct=b.total>0?Math.round(b.quoted/b.total*100):0;
+  }
+  for(const o of items){
+    bl.options[o.raw]={status:o.status,bid:o.bid,ask:o.ask,sprd:o.sprd,mid:o.mid,iv:o.iv};
+    if(o.status==='QUOTED'||o.status==='WIDE')bl.quotedCount++;
+  }
+  G.warmup=true;setTimeout(()=>{G.warmup=false},5*60*1000);
+  return bl}
+
+// Hardcoded fallback (used before first baseline)
+function fallbackTh(o){
+  const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:.2;const dte=o.T*365;
+  if(dte<1)return 60;if(dte<3)return 45;if(dte<7){return mono<.05?10:mono<.15?18:38}
+  return mono<.05?12:mono<.15?20:35}
+
+// Baseline-aware threshold — replaces old dynSprdTh
+function dynSprdTh(o){
+  const bl=G.baseline;
+  if(!bl)return fallbackTh(o);
+  const{key}=getBands(o);const b=bl.buckets[key];
+  if(!b||!b.p95)return fallbackTh(o);
+  const utcH=new Date().getUTCHours();
+  const liqMult=(utcH>=0&&utcH<8)?1.3:1.0; // low-liq hours
+  return b.p95*G.th.blWarn*liqMult}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 2: MARKET STATE + SUPPRESSION
+// ═══════════════════════════════════════════════════════════════════
+function updateSpotHist(){
+  const now=Date.now();
+  for(const[a,p] of Object.entries(G.spots)){
+    if(!G.spotHist[a])G.spotHist[a]=[];
+    G.spotHist[a].push({p,t:now});
+    G.spotHist[a]=G.spotHist[a].filter(s=>now-s.t<600000);
+  }
+}
+
+function spotMove5m(asset){
+  const h=G.spotHist[asset];if(!h||h.length<2)return 0;
+  const now=Date.now();const r=h.filter(s=>now-s.t<300000);
+  if(!r.length)return 0;
+  return r[0].p>0?Math.abs(r[r.length-1].p-r[0].p)/r[0].p:0}
+
+function shouldSuppress(alert){
+  const bl=G.baseline;
+  // Warmup — suppress internal alerts for 5min after baseline capture
+  if(G.warmup&&['PT_WIDE','PT_STALE'].includes(alert.cat))return'warmup';
+  // Option was NEVER quoted at baseline — suppress internal alerts
+  if(bl&&['PT_WIDE','PT_STALE'].includes(alert.cat)){
+    const blOpt=bl.options[alert.title]||bl.options[alert.raw];
+    if(!blOpt||blOpt.status==='EMPTY')return'baseline-empty'}
+  // Spot moved >3% in 5min
+  if(['PT_WIDE','PT_STALE'].includes(alert.cat)&&spotMove5m(alert.asset)>0.03)return'spot-move';
+  return false}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 3: HEALTH SCORE v2 — baseline-relative
+// ═══════════════════════════════════════════════════════════════════
+function calcBlHealth(){
+  const bl=G.baseline;const items=G.ptItems;
+  if(!bl||!items.length)return null;
+  let matching=0,blQuoted=0,coveredCount=0,totalDrift=0,driftN=0;
+  for(const o of items){
+    const blOpt=bl.options[o.raw];
+    if(!blOpt||blOpt.status==='EMPTY')continue;
+    blQuoted++;
+    const live=o.status==='QUOTED'||o.status==='WIDE';
+    if(!live)continue;coveredCount++;
+    const{key}=getBands(o);const b=bl.buckets[key];
+    const blSprd=b?.median||blOpt.sprd||50;
+    if(o.sprd!=null&&o.sprd<=blSprd*2)matching++;
+    if(blOpt.sprd>0&&o.sprd!=null){totalDrift+=o.sprd/blOpt.sprd;driftN++}
+  }
+  return{
+    quoterHealth:blQuoted>0?Math.round(matching/blQuoted*100):0,
+    coverage:blQuoted>0?Math.round(coveredCount/blQuoted*100):0,
+    spreadDrift:driftN>0?totalDrift/driftN:1,
+    blQuoted,matching,coveredCount}}
+
+// ═══════════════════════════════════════════════════════════════════
+// QUANT HELPERS
+// ═══════════════════════════════════════════════════════════════════
+const isLiquid=(m,minVol,minOI)=>m.bid>0&&m.ask>0&&m.vol24h>=minVol&&m.oi>=minOI;
+function calcConf(pt,liq){
+  let s=35;const av=liq.reduce((a,b)=>a+b.vol24h,0)/(liq.length||1);
+  if(av>2e6)s+=25;else if(av>5e5)s+=15;else if(av>1e5)s+=7;
+  if(pt.oi>100)s+=12;else if(pt.oi>10)s+=6;
+  const ms=Math.min(...liq.filter(m=>m.sprd!=null).map(m=>m.sprd).concat([99]));
+  if(ms<3)s+=15;else if(ms<8)s+=8;
+  const dte=pt.T*365;if(dte>7&&dte<60)s+=13;else if(dte<=1)s-=30;
+  if(liq.length>=2)s+=10;return Math.min(100,Math.max(0,s))}
+function detectGaps(ptItems){
+  const gaps=[];const byG={};
+  for(const o of ptItems){const g=`${o.asset}-${o.expiry}`;if(!byG[g])byG[g]=new Set();byG[g].add(o.strike)}
+  for(const[g,ss] of Object.entries(byG)){const strikes=[...ss].sort((a,b)=>a-b);if(strikes.length<4)continue;
+    const sp=strikes.slice(1).map((s,i)=>s-strikes[i]);const sorted=[...sp].sort((a,b)=>a-b);const med=sorted[Math.floor(sorted.length/2)];
+    for(let i=0;i<sp.length;i++){if(sp[i]>med*2.2){const[asset,expiry]=g.split('-');gaps.push({asset,expiry,from:strikes[i],to:strikes[i+1],gap:sp[i],expected:med})}}}
+  return gaps}
+const ago=ts=>{const s=Math.floor((Date.now()-ts)/1000);if(s<60)return `${s}s ago`;if(s<3600)return `${Math.floor(s/60)}m ago`;return `${Math.floor(s/3600)}h ago`};
+
+// ═══════════════════════════════════════════════════════════════════
+// ORDERBOOK HEALTH ANALYSIS — baseline-aware
+// ═══════════════════════════════════════════════════════════════════
+function analyzeHealth(ptOpts){
+  const items=ptOpts.map(o=>{
+    const hasBid=o.bid!=null&&o.bid>0,hasAsk=o.ask!=null&&o.ask>0;
+    const th=dynSprdTh(o);
+    let status='EMPTY';
+    if(hasBid&&hasAsk)status=o.sprd!=null&&o.sprd>=th?'WIDE':'QUOTED';
+    else if(hasBid||hasAsk)status='ONE_SIDED';
+    let iv=null,delta=null,vega=null;
+    if(o.mid>0&&o.spot>0&&o.T>1e-6){iv=solveIV(o.mid,o.spot,o.strike,o.T,0,o.cp);
+      if(iv){delta=bsDelta(o.spot,o.strike,o.T,0,iv,o.cp);vega=bsVega(o.spot,o.strike,o.T,0,iv)}}
+    const isGammaRisk=o.spot>0&&Math.abs(o.strike-o.spot)/o.spot<.05&&o.oi>0&&(status==='WIDE'||status==='ONE_SIDED');
+    // Baseline deviation flags
+    const bl=G.baseline;let blDev=null,blWasQuoted=false;
+    if(bl){const bo=bl.options[o.raw];
+      if(bo){blWasQuoted=bo.status==='QUOTED'||bo.status==='WIDE';
+        if(blWasQuoted&&(status==='EMPTY'||status==='ONE_SIDED'))blDev='PULLED';
+        else if(!blWasQuoted&&(status==='QUOTED'))blDev='NEW';
+        else if(blWasQuoted&&o.sprd!=null&&bo.sprd!=null&&bo.sprd>0){
+          const ratio=o.sprd/bo.sprd;
+          if(ratio>G.th.blCrit)blDev='BLOWN';else if(ratio>G.th.blWarn)blDev='DRIFTED'}}}
+    return{...o,hasBid,hasAsk,status,dynTh:th,iv,delta,vega,isGammaRisk,blDev,blWasQuoted}});
+  const byG={};
+  for(const o of items){const g=`${o.asset}-${o.expiry}`;if(!byG[g])byG[g]=[];byG[g].push(o)}
+  for(const arr of Object.values(byG)){const vols=arr.map(a=>a.vol24h).filter(v=>v>0);
+    const avgVol=vols.length?vols.reduce((a,b)=>a+b,0)/vols.length:0;const maxVol=vols.length?Math.max(...vols):0;
+    for(const o of arr){o.groupAvgVol=avgVol;o.groupMaxVol=maxVol;o.volPctOfMax=maxVol>0?o.vol24h/maxVol*100:0;o.isLowVol=avgVol>0&&o.vol24h>0&&o.vol24h<avgVol*(G.th.lowVolPct/100);o.isZeroVol=o.vol24h===0}}
+  return items}
+
+// ═══════════════════════════════════════════════════════════════════
+// ALERT DETECTION — with Phase 2 suppression
+// ═══════════════════════════════════════════════════════════════════
+function detect(ptItems,ptPerps,mktOpts,mktPerps,th){
+  const al=[];const{minExtVol=50000,minExtOI=5}=th;let suppressed=0;
+  const bl=G.baseline;
+
+  // ── PT INTERNAL (baseline-aware) ──────────────────────────────
+  for(const o of ptItems){
+    if(o.mid<1&&o.status!=='EMPTY'&&o.status!=='ONE_SIDED')continue;
+    // PULLED — was quoted at baseline, now empty/1-sided
+    if(o.blDev==='PULLED'){
+      const a={cat:'PT_STALE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,val:0,
+        msg:`QUOTE PULLED — was live at baseline, now ${o.status}`,
+        detail:`Baseline: bid $${bl?.options[o.raw]?.bid?.toFixed(2)||'?'} / ask $${bl?.options[o.raw]?.ask?.toFixed(2)||'?'} | OI: ${o.oi} | Δ: ${o.delta?.toFixed(3)||'—'}`,
+        net:0,profitable:false,act:`CHECK MM — quote pulled: ${o.raw}`,confidence:85};
+      const sup=shouldSuppress(a);if(sup){suppressed++;continue}al.push(a);continue}
+    // BLOWN — spread >3x baseline for its bucket
+    if(o.blDev==='BLOWN'){
+      const blSprd=bl?.options[o.raw]?.sprd||0;
+      const a={cat:'PT_WIDE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,val:o.sprd,
+        msg:`Spread BLOWN ${o.sprd.toFixed(1)}% (baseline was ${blSprd.toFixed(1)}%, ${(o.sprd/blSprd).toFixed(1)}x)`,
+        detail:`Bid $${o.bid.toFixed(2)} / Ask $${o.ask.toFixed(2)} | IV: ${o.iv?(o.iv*100).toFixed(1)+'%':'—'} | Δ: ${o.delta?.toFixed(3)||'—'}${o.isGammaRisk?' | ⚠ GAMMA':''}`,
+        net:0,profitable:false,act:`FLAG TO MM: ${o.raw} — spread ${(o.sprd/blSprd).toFixed(1)}x baseline`,confidence:o.isGammaRisk?90:75};
+      const sup=shouldSuppress(a);if(sup){suppressed++;continue}al.push(a);continue}
+    // DRIFTED — spread >1.5x baseline
+    if(o.blDev==='DRIFTED'){
+      const blSprd=bl?.options[o.raw]?.sprd||0;
+      const a={cat:'PT_WIDE',sev:'warning',asset:o.asset,title:o.raw,raw:o.raw,val:o.sprd,
+        msg:`Spread drifted ${o.sprd.toFixed(1)}% (baseline ${blSprd.toFixed(1)}%, ${(o.sprd/blSprd).toFixed(1)}x)`,
+        detail:`Bid $${o.bid.toFixed(2)} / Ask $${o.ask.toFixed(2)} | IV: ${o.iv?(o.iv*100).toFixed(1)+'%':'—'} | Δ: ${o.delta?.toFixed(3)||'—'}`,
+        net:0,profitable:false,act:`MONITOR: ${o.raw}`,confidence:50};
+      const sup=shouldSuppress(a);if(sup){suppressed++;continue}al.push(a);continue}
+    // Fallback for no-baseline: one-sided with OI
+    if(!bl&&o.status==='ONE_SIDED')al.push({cat:'PT_STALE',sev:'warning',asset:o.asset,title:o.raw,raw:o.raw,val:0,
+      msg:`One-sided: ${o.hasBid?'Bid $'+o.bid.toFixed(2)+' only':'Ask $'+o.ask.toFixed(2)+' only'}`,
+      detail:`OI: ${o.oi} | Vol24h: $${$n(Math.round(o.vol24h))} | Δ: ${o.delta?.toFixed(3)||'—'}`,
+      net:0,profitable:false,act:`CHECK MM QUOTING — ${o.raw}`,confidence:30});
+    // Fallback for no-baseline: WIDE by hardcoded threshold
+    if(!bl&&o.status==='WIDE'){const sev=o.sprd>=o.dynTh*2?'critical':'warning';
+      al.push({cat:'PT_WIDE',sev,asset:o.asset,title:o.raw,raw:o.raw,val:o.sprd,
+        msg:`Spread ${o.sprd.toFixed(1)}% (th ${o.dynTh}%) · Bid $${o.bid.toFixed(2)} / Ask $${o.ask.toFixed(2)}`,
+        detail:`IV: ${o.iv?(o.iv*100).toFixed(1)+'%':'—'} | OI: ${o.oi} | Δ: ${o.delta?.toFixed(3)||'—'}${o.isGammaRisk?' | ⚠ GAMMA':''}`,
+        net:0,profitable:false,act:`FLAG TO MM: ${o.raw}`,confidence:o.isGammaRisk?80:50})}
+    // Near-expiry always alerts
+    const hrs=o.T*365*24;
+    if(hrs>0&&hrs<=24&&o.status!=='EMPTY')al.push({cat:'PT_STALE',sev:'critical',asset:o.asset,title:`⏱ ${o.raw}`,raw:o.raw,val:hrs,
+      msg:`EXPIRING IN ${hrs.toFixed(1)}h — Gamma explosion risk`,
+      detail:`OI: ${o.oi} | Bid/Ask: $${o.bid?.toFixed(2)||'—'}/$${o.ask?.toFixed(2)||'—'} | Δ: ${o.delta?.toFixed(3)||'—'}`,
+      net:0,profitable:false,act:`URGENT: Remove from book or verify settlement hedge`,confidence:90})}
+
+  // ── PT vs MARKET — EXECUTABLE PRICE ARB + IV DISLOCATION ──────
+  const mktByK={};
+  for(const o of mktOpts){if(o.T<2/365||o.mid<=0)continue;
+    const k=`${o.asset}-${o.strike}-${o.expiry}-${o.cp}`;if(!mktByK[k])mktByK[k]=[];mktByK[k].push(o)}
+  for(const pt of ptItems){
+    if(pt.mid<=0||pt.T<2/365||pt.mid<1)continue;
+    const k=`${pt.asset}-${pt.strike}-${pt.expiry}-${pt.cp}`;const mkts=mktByK[k];if(!mkts)continue;
+    const liq=mkts.filter(m=>isLiquid(m,minExtVol,minExtOI));if(!liq.length)continue;
+    // IV Dislocation
+    if(pt.iv){for(const m of liq){const mktIv=m.markIv||m.iv;if(!mktIv)continue;
+      const ivDiff=(pt.iv-mktIv)*100;const absD=Math.abs(ivDiff);
+      if(absD>=th.ivArb){const conf=calcConf(pt,liq);
+        al.push({cat:'MKT_IV',sev:absD>=th.ivArb*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,val:absD,
+          msg:`PT IV ${(pt.iv*100).toFixed(1)}% vs ${m.ex} IV ${(mktIv*100).toFixed(1)}% (Δ${ivDiff.toFixed(1)} vol pts)`,
+          detail:`PT mid $${pt.mid.toFixed(2)} | ${m.ex} mid $${m.mid.toFixed(2)} | Vega: ${pt.vega?.toFixed(2)||'—'}/1% | OI: ${pt.oi}`,
+          net:0,profitable:false,
+          act:ivDiff<0?`PT VOL CHEAP vs ${m.ex}`:`PT VOL RICH vs ${m.ex}`,confidence:conf})}}}
+    // Executable price arb
+    const mktMids=liq.map(m=>m.mid);const mktAvg=mktMids.reduce((a,b)=>a+b,0)/mktMids.length;
+    const pctDiff=((pt.mid-mktAvg)/mktAvg)*100;const absDiff=Math.abs(pctDiff);
+    if(absDiff<th.ptVsMkt)continue;
+    const cheap=pctDiff<0;const conf=calcConf(pt,liq);
+    if(cheap&&pt.ask!=null&&pt.ask>0){
+      const bestBid=liq.reduce((b,m)=>m.bid>0&&m.bid>(b?.bid||0)?m:b,null);
+      if(bestBid&&bestBid.bid>0){const eA=pt.ask*(1+SLIP),eB=bestBid.bid*(1-SLIP);const gross=eB-eA;
+        const fees=pt.ask*FEES.PT.t+bestBid.bid*(FEES[bestBid.ex]?.t||.0005);const net=gross-fees;
+        al.push({cat:'PT_CHEAP',sev:absDiff>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,val:absDiff,
+          msg:`PT mid $${pt.mid.toFixed(2)} vs mkt avg $${mktAvg.toFixed(2)} (${pctDiff.toFixed(1)}%)`,
+          detail:`Gross $${gross.toFixed(2)} | Fees $${fees.toFixed(2)} | Net ${net>0?'$'+net.toFixed(2):'❌ NEG'} | 0.5% slip`,
+          net,profitable:net>0,act:`BUY PT ${pt.raw} @${pt.ask.toFixed(2)} → SELL ${bestBid.ex} @${bestBid.bid.toFixed(2)} [net $${net.toFixed(2)}]`,confidence:conf})}}
+    else if(!cheap&&pt.bid!=null&&pt.bid>0){
+      const bestAsk=liq.filter(m=>m.ask>0).reduce((b,m)=>!b||m.ask<b.ask?m:b,null);
+      if(bestAsk&&bestAsk.ask>0){const eB=pt.bid*(1-SLIP),eA=bestAsk.ask*(1+SLIP);const gross=eB-eA;
+        const fees=pt.bid*FEES.PT.t+bestAsk.ask*(FEES[bestAsk.ex]?.t||.0005);const net=gross-fees;
+        al.push({cat:'PT_RICH',sev:absDiff>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,val:absDiff,
+          msg:`PT mid $${pt.mid.toFixed(2)} vs mkt avg $${mktAvg.toFixed(2)} (+${pctDiff.toFixed(1)}%)`,
+          detail:`Gross $${gross.toFixed(2)} | Fees $${fees.toFixed(2)} | Net ${net>0?'$'+net.toFixed(2):'❌ NEG'} | 0.5% slip`,
+          net,profitable:net>0,act:`SELL PT ${pt.raw} @${pt.bid.toFixed(2)} → BUY ${bestAsk.ex} @${bestAsk.ask.toFixed(2)} [net $${net.toFixed(2)}]`,confidence:conf})}}}
+
+  // ── PERP BASIS ARB ────────────────────────────────────────────
+  const pBA={};for(const p of[...ptPerps,...mktPerps]){if(!p.isPerpetual)continue;if(!pBA[p.asset])pBA[p.asset]={};pBA[p.asset][p.ex]=p}
+  for(const[asset,em] of Object.entries(pBA)){const pt=em.PT;if(!pt)continue;
+    for(const[ex,mp] of Object.entries(em)){if(ex==='PT')continue;
+      const bdBps=Math.abs(pt.basis-mp.basis)*100;if(bdBps<th.perpBps)continue;
+      const gross=Math.abs(pt.mark-mp.mark);const avgMk=(pt.mark+mp.mark)/2;
+      const fees=avgMk*(FEES.PT.t+(FEES[ex]?.t||.0005));const net=gross-fees;
+      al.push({cat:'PERP_ARB',sev:bdBps>th.perpBps*2?'critical':'warning',asset,title:`${asset} PERP PT↔${ex}`,raw:`${asset}-PERP`,val:bdBps,
+        msg:`Basis Δ ${bdBps.toFixed(1)}bps | PT $${pt.mark.toFixed(2)} vs ${ex} $${mp.mark.toFixed(2)}`,
+        detail:`PT basis: ${pt.basis.toFixed(4)}% | ${ex}: ${mp.basis.toFixed(4)}% | Net ${net>0?'$'+net.toFixed(2):'❌ NEG'}`,
+        net,profitable:net>0,
+        act:pt.mark<mp.mark?`LONG PT → SHORT ${ex} [net $${net.toFixed(2)}]`:`SHORT PT → LONG ${ex} [net $${net.toFixed(2)}]`,confidence:70})}}
+
+  // ── FUNDING RATE ARB ──────────────────────────────────────────
+  for(const[asset,em] of Object.entries(pBA)){const pt=em.PT;if(!pt||pt.funding==null)continue;
+    for(const[ex,mp] of Object.entries(em)){if(ex==='PT'||mp.funding==null)continue;
+      const fdBps=Math.abs(pt.funding-mp.funding)*10000;if(fdBps<th.fundBps)continue;
+      al.push({cat:'FUND_ARB',sev:fdBps>th.fundBps*2?'critical':'warning',asset,title:`${asset} FUNDING PT↔${ex}`,raw:`${asset}-FUND`,val:fdBps,
+        msg:`Funding Δ ${fdBps.toFixed(2)}bps | PT ${(pt.funding*10000).toFixed(2)}bps vs ${ex} ${(mp.funding*10000).toFixed(2)}bps`,
+        detail:`Pay lower funding, receive higher. Δ ${fdBps.toFixed(2)}bps per 8h cycle`,
+        net:fdBps,profitable:fdBps>3,
+        act:pt.funding<mp.funding?`LONG PT (lower funding) → SHORT ${ex}`:`SHORT PT → LONG ${ex} (lower funding)`,confidence:60})}}
+
+  G.suppressed=suppressed;
+  return al.sort((a,b)=>(a.sev==='critical'?0:1)-(b.sev==='critical'?0:1)||b.confidence-a.confidence||b.val-a.val)}
+
+// ═══════════════════════════════════════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════════════════════════════════════
+async function refresh(){
+  if(_refreshing)return;_refreshing=true;G.loading=true;render();const errs=[];
+  G.conn={PT:{ok:false,n:0,lat:0,lastFetch:G.conn.PT.lastFetch},Deribit:{ok:false,n:0,lat:0,lastFetch:G.conn.Deribit.lastFetch},OKX:{ok:false,n:0,lat:0,lastFetch:G.conn.OKX.lastFetch},Bybit:{ok:false,n:0,lat:0,lastFetch:G.conn.Bybit.lastFetch},CoinCall:{ok:false,n:0,lat:0,lastFetch:G.conn.CoinCall.lastFetch}};
+  const[ptR,...mktRs]=await Promise.allSettled([fetchPT(),fetchDeribit('BTC'),fetchDeribit('ETH'),fetchDeribit('SOL'),fetchOKX('BTC'),fetchOKX('ETH'),fetchBybit('BTC'),fetchBybit('ETH'),fetchBybit('SOL'),fetchCoinCall('BTC'),fetchCoinCall('ETH'),fetchCoinCall('SOL')]);
+  if(ptR.status==='fulfilled'&&ptR.value){const d=ptR.value;
+    if(d.ok){G.ptOpts=d.opts;G.ptPerps=d.perps;G.conn.PT={ok:true,n:d.count,lat:d.lat,lastFetch:Date.now()};Object.assign(G.spots,d.spots)}
+    else{errs.push(`PT: ${d.err}`);G.ptOpts=[];G.ptPerps=[]}}
+  else{errs.push(`PT: ${ptR.reason||'failed'}`);G.ptOpts=[];G.ptPerps=[]}
+  let mo=[],mp=[];
+  const mL=['Deribit BTC','Deribit ETH','Deribit SOL','OKX BTC','OKX ETH','Bybit BTC','Bybit ETH','Bybit SOL','CoinCall BTC','CoinCall ETH','CoinCall SOL'];
+  const mE=['Deribit','Deribit','Deribit','OKX','OKX','Bybit','Bybit','Bybit','CoinCall','CoinCall','CoinCall'];
+  mktRs.forEach((r,i)=>{const ex=mE[i];
+    if(r.status==='fulfilled'&&r.value){const d=r.value;
+      if(d.oOk){mo=mo.concat(d.opts);G.conn[ex].ok=true;G.conn[ex].n+=d.opts.length;G.conn[ex].lat=Math.max(G.conn[ex].lat,d.lat);G.conn[ex].lastFetch=Date.now()}
+      if(d.fOk){mp=mp.concat(d.perps);G.conn[ex].ok=true}
+      for(const p of d.perps||[])if(p.spot>0)G.spots[p.asset]=p.spot;
+      for(const o of d.opts||[])if(o.spot>0&&!G.spots[o.asset])G.spots[o.asset]=o.spot;
+    }else errs.push(`${mL[i]}: ${r.reason||'failed'}`)});
+  G.mktOpts=mo;G.mktPerps=mp;
+  updateSpotHist();
+  const ptItems=analyzeHealth(G.ptOpts);G.ptItems=ptItems;
+  // Auto-capture baseline on first successful load, or auto-recapture
+  if(!G.baseline&&ptItems.length>0){G.baseline=captureBaseline();G.ptItems=analyzeHealth(G.ptOpts)}
+  else if(G.autoBlH>0&&G.baseline&&(Date.now()-G.baseline.timestamp)>G.autoBlH*3600000&&ptItems.length>0){G.baseline=captureBaseline();G.ptItems=analyzeHealth(G.ptOpts)}
+  const newAlerts=detect(ptItems,G.ptPerps,mo,mp,G.th);
+  const prevMap=new Map(G.alerts.map(a=>[a._key,a]));const now=Date.now();
+  for(const a of newAlerts){a._key=(a.title+a.cat).replace(/[^a-zA-Z0-9]/g,'_');
+    const prev=prevMap.get(a._key);
+    if(prev){a.persistCount=(prev.persistCount||1)+1;a.firstSeen=prev.firstSeen||now;a.isNew=false}
+    else{a.persistCount=1;a.firstSeen=now;a.isNew=true}}
+  G.alerts=newAlerts;G.errors=errs;G.loading=false;G.lastUp=new Date();G.tick++;_refreshing=false;
+  if(!G.compExpiry){const es=[...new Set(G.ptOpts.filter(o=>o.asset===G.compAsset).map(o=>o.expiry))];if(es.length)G.compExpiry=es[0]}
+  render()}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER HELPERS
+// ═══════════════════════════════════════════════════════════════════
+const $n=v=>typeof v==='number'?v.toLocaleString():v;
+const $$=v=>typeof v==='number'?'$'+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const bg=(t,c)=>`<span class="badge bg-${c}">${t}</span>`;
+function copyToClipboard(txt,ev){const el=ev?.target||ev?.currentTarget;navigator.clipboard?.writeText(txt);if(el){const orig=el.textContent;el.textContent='✓';setTimeout(()=>el.textContent=orig,1200)}}
+function exportCSV(){
+  const rows=[['Time','FirstSeen','Persist','Sev','Cat','Asset','Title','Val','Confidence','Profitable','Net','Message','Action']];
+  for(const a of G.alerts)rows.push([G.lastUp?.toISOString()||'',a.firstSeen?new Date(a.firstSeen).toISOString():'',a.persistCount||1,a.sev,a.cat,a.asset,a.title,typeof a.val==='number'?a.val.toFixed(2):'',a.confidence||0,a.profitable?'Yes':'No',a.net?.toFixed(2)||'0',`"${(a.msg||'').replace(/"/g,"'")}"`,`"${(a.act||'').replace(/"/g,"'")}"` ]);
+  const csv=rows.map(r=>r.join(',')).join('\n');const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download=`pt-police-${new Date().toISOString().slice(0,16)}.csv`;a.click();URL.revokeObjectURL(u)}
+
+// ═══════════════════════════════════════════════════════════════════
+// HEATMAP
+// ═══════════════════════════════════════════════════════════════════
+function renderHeatmap(items,asset,spot){
+  const ai=items.filter(o=>o.asset===asset);if(!ai.length)return'';
+  const expiries=[...new Set(ai.map(o=>o.expiry))].sort((a,b)=>{const oa=ai.find(o=>o.expiry===a),ob=ai.find(o=>o.expiry===b);return(oa?.expiryDate?.getTime()||0)-(ob?.expiryDate?.getTime()||0)}).slice(0,10);
+  const allStrikes=[...new Set(ai.map(o=>o.strike))].sort((a,b)=>a-b);
+  const vis=spot>0?allStrikes.filter(k=>Math.abs(k-spot)/spot<.3):allStrikes.slice(0,25);
+  if(!expiries.length||!vis.length)return'';
+  const lu={};for(const o of ai)lu[`${o.expiry}-${o.strike}-${o.cp}`]=o;
+  let h=`<div class="hmap-wrap"><div class="hmap-title">⊞ STRIKE HEATMAP — ${asset} (±30% of spot)
+    <span style="margin-left:12px;font-weight:400;letter-spacing:0">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(31,188,88,.35);vertical-align:middle"></span> Quoted
+      <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(245,158,11,.45);vertical-align:middle;margin-left:6px"></span> Wide
+      <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(240,100,40,.55);vertical-align:middle;margin-left:6px"></span> 1-Sided
+      <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(240,64,64,.45);vertical-align:middle;margin-left:6px"></span> Empty
+      <span style="vertical-align:middle;margin-left:6px;color:var(--acc)">★</span> ATM
+    </span></div><div class="hmap-scroll"><table class="hmap-tbl"><thead><tr><th style="text-align:left">Expiry</th>`;
+  for(const K of vis){const atm=spot>0&&Math.abs(K-spot)/spot<.015;h+=`<th class="${atm?'hmap-atm':''}" title="Strike $${$n(K)}">${K>=1000?(K/1000).toFixed(0)+'k':K}${atm?'★':''}</th>`}
+  h+=`</tr></thead><tbody>`;
+  for(const exp of expiries){h+=`<tr><td class="hmap-exp">${exp}</td>`;
+    for(const K of vis){const C=lu[`${exp}-${K}-C`],P=lu[`${exp}-${K}-P`],o=C||P;
+      if(!o){h+=`<td class="hmap-empty">·</td>`;continue}
+      const statuses=[C,P].filter(Boolean).map(x=>x.status);
+      const worst=statuses.includes('EMPTY')?'EMPTY':statuses.includes('ONE_SIDED')?'ONE_SIDED':statuses.includes('WIDE')?'WIDE':'QUOTED';
+      const col={EMPTY:'hmap-red',ONE_SIDED:'hmap-org',WIDE:'hmap-yel',QUOTED:'hmap-grn'}[worst];
+      const tip=`${exp} $${$n(K)} | C:${C?.sprd?.toFixed(1)||'—'}% / P:${P?.sprd?.toFixed(1)||'—'}%`;
+      h+=`<td class="hmap-cell ${col}" title="${tip}" onclick="G.hAsset='${asset}';G.hExpiry='${exp}';G.hFilter='ALL';render()"></td>`}
+    h+=`</tr>`}
+  h+=`</tbody></table></div></div>`;return h}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB: HEALTH — with baseline-relative scoring
+// ═══════════════════════════════════════════════════════════════════
+function rHealth(){
+  const items=G.ptItems||[];if(!items.length)return`<div class="empty">No PT option data loaded</div>`;
+  const{hAsset,hExpiry,hFilter}=G;const bl=G.baseline;const blH=calcBlHealth();
+  const assets=[...new Set(items.map(o=>o.asset))].sort();
+  const fa=items.filter(o=>hAsset==='ALL'||o.asset===hAsset);
+  const expiries=[...new Set(fa.map(o=>o.expiry))].sort((a,b)=>{const oa=fa.find(o=>o.expiry===a),ob=fa.find(o=>o.expiry===b);return(oa?.expiryDate?.getTime()||0)-(ob?.expiryDate?.getTime()||0)});
+  const curExp=hExpiry!=='ALL'&&expiries.includes(hExpiry)?hExpiry:'ALL';
+  let fi=fa.filter(o=>curExp==='ALL'||o.expiry===curExp);
+  if(hFilter==='EMPTY')fi=fi.filter(o=>o.status==='EMPTY');
+  else if(hFilter==='ONE_SIDED')fi=fi.filter(o=>o.status==='ONE_SIDED');
+  else if(hFilter==='WIDE')fi=fi.filter(o=>o.status==='WIDE');
+  else if(hFilter==='LOW_VOL')fi=fi.filter(o=>o.isLowVol||o.isZeroVol);
+  else if(hFilter==='PROBLEMS')fi=fi.filter(o=>o.blDev==='PULLED'||o.blDev==='BLOWN'||o.blDev==='DRIFTED'||(o.status!=='QUOTED'&&o.blWasQuoted));
+  else if(hFilter==='GAMMA')fi=fi.filter(o=>o.isGammaRisk);
+  else if(hFilter==='PULLED')fi=fi.filter(o=>o.blDev==='PULLED');
+
+  // Health scoring
+  const tot=fa.length;
+  const rawQ=fa.filter(o=>o.status==='QUOTED').length,w=fa.filter(o=>o.status==='WIDE').length;
+  const os=fa.filter(o=>o.status==='ONE_SIDED').length,em=fa.filter(o=>o.status==='EMPTY').length;
+  const gamma=fa.filter(o=>o.isGammaRisk).length;
+  const pulled=fa.filter(o=>o.blDev==='PULLED').length,blown=fa.filter(o=>o.blDev==='BLOWN').length;
+
+  // Use baseline health if available, otherwise raw ratio
+  const hp=blH?blH.quoterHealth:(tot>0?Math.round(rawQ/tot*100):0);
+  const hc=hp>=80?'var(--grn)':hp>=50?'var(--org)':'var(--red)';
+  const gaps=detectGaps(hAsset!=='ALL'?fi:items);
+
+  let h=bl
+    ?`<div class="info-box">📊 <b>Baseline-relative health.</b> Score = options matching baseline / options quoted at baseline. Only deviations FROM the quoter's own behaviour trigger alerts. <span class="dim">Baseline captured ${ago(bl.timestamp)} · ${bl.quotedCount} live options at capture · auto-recapture every ${G.autoBlH}h</span></div>`
+    :`<div class="warn-box">⚡ <b>No baseline captured yet.</b> The quoter's normal state hasn't been learned — using hardcoded thresholds as fallback. Click <b>📸 BASELINE</b> in the header after confirming the quoter is running normally.</div>`;
+
+  // Score cards
+  h+=`<div class="grid g2" style="margin-bottom:7px">
+    <div class="card" style="display:flex;align-items:center;gap:14px">
+      <div class="score-ring" style="color:${hc};border-color:${hc}">${hp}%</div>
+      <div><div class="card-t" style="color:${hc};margin-bottom:2px">${bl?'QUOTER':'ORDERBOOK'} HEALTH${hAsset!=='ALL'?' — '+hAsset:''}</div>
+        <div class="dim" style="font-size:8px;line-height:1.6">${bl
+          ?`${blH?.matching||0}/${blH?.blQuoted||0} matching baseline · Coverage ${blH?.coverage||0}% · Drift ${blH?.spreadDrift?.toFixed(2)||'—'}x`
+          :`${tot} options · ${rawQ} properly quoted · ${w} wide · ${os} 1-sided · ${em} empty`}${gamma?` · ${gamma} gamma risk`:''}</div></div></div>
+    <div class="card"><div class="card-t" style="margin-bottom:4px">${bl?'BASELINE DEVIATION':'BREAKDOWN'}</div>
+      ${bl?`<div class="grid g4" style="gap:4px">
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--grn)">${blH?.matching||0}</div><div class="dim" style="font-size:7px">MATCHING</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--red)">${pulled}</div><div class="dim" style="font-size:7px">PULLED</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--org)">${blown}</div><div class="dim" style="font-size:7px">BLOWN</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--dim)">${G.suppressed}</div><div class="dim" style="font-size:7px">SUPPRESSED</div></div>
+      </div>`:`<div class="grid g4" style="gap:4px">
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--grn)">${rawQ}</div><div class="dim" style="font-size:7px">QUOTED</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--org)">${w}</div><div class="dim" style="font-size:7px">WIDE</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--red)">${os}</div><div class="dim" style="font-size:7px">1-SIDED</div></div>
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--dim)">${em}</div><div class="dim" style="font-size:7px">EMPTY</div></div></div>`}
+      <div class="bar-w" style="margin-top:5px"><div style="display:flex;height:7px">
+        <div style="width:${bl&&blH?(blH.matching/(blH.blQuoted||1)*100):tot>0?rawQ/tot*100:0}%;background:var(--grn)"></div>
+        <div style="width:${bl?pulled/(blH?.blQuoted||1)*100:tot>0?w/tot*100:0}%;background:${bl?'var(--red)':'var(--org)'}"></div>
+        <div style="width:${bl?blown/(blH?.blQuoted||1)*100:tot>0?os/tot*100:0}%;background:${bl?'var(--org)':'var(--red)'}"></div>
+      </div></div></div></div>`;
+
+  if(gaps.length)h+=`<div class="warn-box">⚡ <b>STRIKE LADDER GAPS (${gaps.length})</b>: ${gaps.slice(0,6).map(g=>`<span class="gap-alert">${g.asset} ${g.expiry} $${$n(g.from)}→$${$n(g.to)}</span>`).join('')}${gaps.length>6?` +${gaps.length-6} more`:''}</div>`;
+
+  const hmAsset=hAsset!=='ALL'?hAsset:(assets.includes('BTC')?'BTC':assets[0]);
+  if(hmAsset)h+=renderHeatmap(items,hmAsset,G.spots[hmAsset]||0);
+
+  // Per-expiry table
+  if(curExp==='ALL'&&expiries.length>1){
+    h+=`<div class="card"><div class="card-t" style="margin-bottom:5px">HEALTH BY EXPIRY</div><div class="tbl-w"><table class="tbl"><thead><tr><th>Expiry</th><th>Days</th><th>Count</th><th class="pos">Quoted</th><th class="risk-md">Wide</th><th class="neg">1-Side</th><th class="dim">Empty</th>${bl?'<th class="neg">Pulled</th>':''}<th>Health%</th></tr></thead><tbody>`;
+    for(const exp of expiries){const eo=fa.filter(o=>o.expiry===exp);const eq=eo.filter(o=>o.status==='QUOTED').length,ew=eo.filter(o=>o.status==='WIDE').length;const eos=eo.filter(o=>o.status==='ONE_SIDED').length,eem=eo.filter(o=>o.status==='EMPTY').length;const ep=eo.filter(o=>o.blDev==='PULLED').length;const ehp=eo.length>0?Math.round(eq/eo.length*100):0;const ehc=ehp>=70?'var(--grn)':ehp>=40?'var(--org)':'var(--red)';const days=eo[0]?Math.round(dTE(eo[0].expiryDate)):0;
+      h+=`<tr style="cursor:pointer" onclick="G.hExpiry='${exp}';render()"><td style="font-weight:700;color:var(--acc)">${exp}</td><td>${days}d</td><td>${eo.length}</td><td class="pos">${eq}</td><td class="risk-md">${ew||'—'}</td><td class="neg">${eos||'—'}</td><td class="dim">${eem||'—'}</td>${bl?`<td class="neg">${ep||'—'}</td>`:''}<td style="font-weight:700;color:${ehc}">${ehp}%</td></tr>`}
+    h+=`</tbody></table></div></div>`}
+
+  // Filters
+  const filterOpts=bl
+    ?[{id:'ALL',l:'All'},{id:'PROBLEMS',l:'⚠ Deviations'},{id:'PULLED',l:'🔴 Pulled'},{id:'WIDE',l:'⚡ Wide'},{id:'EMPTY',l:'Empty'},{id:'GAMMA',l:'⚡ Gamma'}]
+    :[{id:'ALL',l:'All'},{id:'PROBLEMS',l:'⚠ Problems'},{id:'EMPTY',l:'Empty'},{id:'ONE_SIDED',l:'1-Sided'},{id:'WIDE',l:'Wide'},{id:'LOW_VOL',l:'Low Vol'},{id:'GAMMA',l:'⚡ Gamma'}];
+  h+=`<div class="filters">${['ALL',...assets].map(a=>`<button class="btn${hAsset===a?' btn-a':''}" onclick="G.hAsset='${a}';render()">${a}</button>`).join('')}<span style="width:4px"></span>${['ALL',...expiries.slice(0,10)].map(e=>`<button class="btn${curExp===e?' btn-a':''}" style="font-size:8px" onclick="G.hExpiry='${e}';render()">${e}</button>`).join('')}<span style="width:6px"></span>${filterOpts.map(f=>`<button class="btn${hFilter===f.id?' btn-a':''}" onclick="G.hFilter='${f.id}';render()">${f.l}</button>`).join('')}<span class="dim" style="margin-left:auto;font-size:8px">${fi.length} shown</span></div>`;
+
+  if(!fi.length)return h+`<div class="empty">No options match filter</div>`;
+  fi.sort((a,b)=>{const so={EMPTY:0,ONE_SIDED:1,WIDE:2,QUOTED:3};return(so[a.status]||9)-(so[b.status]||9)||a.asset.localeCompare(b.asset)||a.expiryDate-b.expiryDate||a.strike-b.strike||(a.cp==='C'?0:1)-(b.cp==='C'?0:1)});
+  h+=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Status</th>${bl?'<th>vs BL</th>':''}<th>Symbol</th><th>Asset</th><th>Expiry</th><th>Strike</th><th>C/P</th><th>Bid</th><th>Ask</th><th>Sprd%</th><th>Th%</th><th>IV%</th><th>Δ</th><th>Vol24h</th><th>OI</th></tr></thead><tbody>`;
+  for(const o of fi.slice(0,300)){
+    const sc={EMPTY:'bg-red',ONE_SIDED:'bg-org',WIDE:'bg-org',QUOTED:'bg-grn'}[o.status]||'bg-acc';
+    const sl={EMPTY:'❌ EMPTY',ONE_SIDED:'⚠ 1-SIDE',WIDE:'⚡ WIDE',QUOTED:'✅ OK'}[o.status]||'?';
+    const devBg={PULLED:'bg-red',BLOWN:'bg-red',DRIFTED:'bg-org',NEW:'bg-grn'};
+    const devLbl={PULLED:'PULLED',BLOWN:'BLOWN',DRIFTED:'DRIFT',NEW:'NEW'};
+    h+=`<tr${o.isGammaRisk?' style="background:rgba(240,64,64,.04)"':''}>
+      <td>${bg(sl,sc.replace('bg-',''))}</td>
+      ${bl?`<td>${o.blDev?bg(devLbl[o.blDev]||'',devBg[o.blDev]?.replace('bg-','')||'dim'):'<span class="dim">—</span>'}</td>`:''}
+      <td style="font-weight:600;color:var(--acc)">${o.raw}</td><td>${o.asset}</td><td>${o.expiry}</td>
+      <td>$${$n(o.strike)}</td><td>${o.cp}</td>
+      <td class="${!o.bid?'dim':''}">${o.bid>0?'$'+o.bid.toFixed(2):'<span class="neg">—</span>'}</td>
+      <td class="${!o.ask?'dim':''}">${o.ask>0?'$'+o.ask.toFixed(2):'<span class="neg">—</span>'}</td>
+      <td class="${o.sprd!=null&&o.sprd>=o.dynTh?'risk-hi':o.sprd!=null&&o.sprd>=o.dynTh*.5?'risk-md':'dim'}">${o.sprd!=null?o.sprd.toFixed(1):'—'}</td>
+      <td class="dim">${typeof o.dynTh==='number'?o.dynTh.toFixed(0):'—'}</td>
+      <td class="dim">${o.iv?(o.iv*100).toFixed(1):'—'}</td>
+      <td class="dim">${o.delta?.toFixed(2)||'—'}</td>
+      <td class="dim">${o.vol24h>0?'$'+$n(Math.round(o.vol24h)):'—'}</td>
+      <td class="dim">${o.oi>0?o.oi:'—'}</td></tr>`}
+  h+=`</tbody></table></div>`;
+  if(fi.length>300)h+=`<div class="warn-box" style="margin-top:4px">⚠ Showing 300 of ${fi.length}. Filter to narrow.</div>`;
+  return h}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB: ALERTS
+// ═══════════════════════════════════════════════════════════════════
+function rAlerts(){
+  const{alerts:al,fAsset,fCat,fSev,fProf,fPersist,openA}=G;
+  const cats=[...new Set(al.map(a=>a.cat))];const assets=[...new Set(al.map(a=>a.asset))].sort();
+  const fa=al.filter(a=>(fAsset==='ALL'||a.asset===fAsset)&&(fCat==='ALL'||a.cat===fCat)&&(fSev==='ALL'||a.sev===fSev)&&(!fProf||a.profitable)&&(!fPersist||a.persistCount>1));
+  const sel=(id,v,os)=>`<select class="flt" onchange="sF('${id}',this.value)">${os.map(o=>`<option${v===o?' selected':''}>${o}</option>`).join('')}</select>`;
+  let h=`<div class="filters"><span class="dim" style="font-size:8px">FILTER:</span>
+    ${sel('fAsset',fAsset,['ALL',...assets])}${sel('fSev',fSev,['ALL','critical','warning'])}${sel('fCat',fCat,['ALL',...cats])}
+    <label style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" ${fProf?'checked':''} onchange="G.fProf=this.checked;render()"> Profitable only</label>
+    <label style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" ${fPersist?'checked':''} onchange="G.fPersist=this.checked;render()"> Confirmed (2+ cycles)</label>
+    <span class="dim" style="margin-left:auto;font-size:8px">${fa.length}/${al.length}${G.suppressed?` · <span style="color:var(--org)">${G.suppressed} suppressed</span>`:''}</span></div>`;
+  if(!fa.length)return h+`<div class="empty">${al.length?'No alerts match filters':'✅ No alerts at current thresholds'}</div>`;
+  return h+fa.slice(0,150).map(a=>{const id=(a.title+a.cat).replace(/[^a-zA-Z0-9]/g,'_');
+    const confColor=a.confidence>=70?'var(--grn)':a.confidence>=40?'var(--org)':'var(--red)';
+    return`<div class="alert-row${a.sev==='critical'?' crit':''}${a.isNew?' new-alert':''}${openA===id?' open':''}" onclick="togA('${id}')">
+      <div class="alert-hd">
+        ${bg(a.sev==='critical'?'CRIT':'WARN',a.sev==='critical'?'red':'org')}
+        <span class="badge bg-${catCol[a.cat]||'acc'}" title="${catTip[a.cat]||a.cat}">${catLbl[a.cat]||a.cat}</span>
+        ${bg(a.asset,'acc')}${a.profitable?bg('ACTIONABLE','grn'):''}
+        ${a.persistCount>1?`<span class="persist-badge">↺${a.persistCount}</span>`:''}${a.isNew?bg('NEW','dim'):''}
+        <span class="alert-t">${a.title}</span>
+        <span class="dim" style="font-size:8px">${typeof a.val==='number'&&a.val>0?a.val.toFixed(1):''}</span>
+        <span style="display:inline-block;width:${Math.min(a.confidence||0,100)*0.4}px;height:3px;background:${confColor};border-radius:2px;margin-left:4px"></span>
+      </div>
+      <div class="alert-d">${a.msg}<br><span class="dim">${a.detail}</span><br>
+        ${a.firstSeen?`<span class="dim">First seen: ${ago(a.firstSeen)} · persist ${a.persistCount||1} cycle(s)</span><br>`:''}
+        ${a.profitable?`<span class="pos" style="font-weight:700">Net edge: $${a.net?.toFixed(2)||'?'}</span><br>`:''}
+        <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+          <span style="display:inline-block;padding:2px 7px;border-radius:2px;font-weight:700;background:${a.profitable?'var(--grnBg)':'var(--accD)'};color:${a.profitable?'var(--grn)':'var(--acc)'}">→ ${a.act}</span>
+          <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${a.act.replace(/'/g,'').replace(/"/g,'')}',event)">⎘ copy</button>
+        </div></div></div>`}).join('')}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB: COMPARE
+// ═══════════════════════════════════════════════════════════════════
+function rComp(){
+  const{ptOpts,mktOpts,compAsset:ca,compExpiry:ce}=G;const assets=[...new Set(ptOpts.map(o=>o.asset))].sort();
+  const ao=ptOpts.filter(o=>o.asset===ca);
+  const expiries=[...new Set(ao.map(o=>o.expiry))].sort((a,b)=>{const oa=ao.find(o=>o.expiry===a),ob=ao.find(o=>o.expiry===b);return(oa?.expiryDate?.getTime()||0)-(ob?.expiryDate?.getTime()||0)});
+  const cur=ce&&expiries.includes(ce)?ce:expiries[0];const ptExp=ao.filter(o=>o.expiry===cur);
+  const strikes=[...new Set(ptExp.map(o=>o.strike))].sort((a,b)=>a-b);const Sp=G.spots[ca]||0;
+  const mktExs=[...new Set(mktOpts.filter(o=>o.asset===ca&&o.expiry===cur).map(o=>o.ex))].sort();
+  const{minExtVol=50000,minExtOI=5}=G.th;
+  let h=`<div class="filters">${assets.map(a=>`<button class="btn${ca===a?' btn-a':''}" onclick="G.compAsset='${a}';G.compExpiry=null;render()">${a}</button>`).join('')}<span style="width:6px"></span>${expiries.slice(0,12).map(e=>`<button class="btn${cur===e?' btn-a':''}" style="font-size:8px" onclick="G.compExpiry='${e}';render()">${e}</button>`).join('')}<span class="dim" style="margin-left:auto;font-size:8px">Index: ${Sp?'$'+$n(Sp.toFixed(0)):'?'}</span></div>`;
+  if(!strikes.length)return h+`<div class="empty">No PT options for ${ca} ${cur||''}</div>`;
+  if(!mktExs.length)return h+`<div class="warn-box">No matching market data for ${ca} ${cur||''}</div>`;
+  h+=`<div class="info-box">💡 <b>PT is reference.</b> Diff = (PT mid − Mkt avg) / Mkt avg. <span class="pos">Green = PT cheaper.</span> <span class="neg">Red = PT richer.</span> Liq filter: vol>${$n(minExtVol)}, OI>${minExtOI}.</div>`;
+  h+=`<div class="tbl-w"><table class="tbl"><thead><tr><th>Strike</th><th>C/P</th><th style="color:var(--acc)">PT Bid</th><th style="color:var(--acc)">PT Ask</th><th style="color:var(--acc)">Sprd%</th><th style="color:var(--acc)">PT IV%</th>`;
+  mktExs.forEach(e=>{h+=`<th>${e} Bid</th><th>${e} Ask</th><th class="dim">${e} IV%</th>`});
+  h+=`<th style="color:var(--cyn)">Diff%</th><th>Signal</th></tr></thead><tbody>`;
+  for(const K of strikes){for(const cp of['C','P']){
+    const pt=ptExp.find(o=>o.strike===K&&o.cp===cp);if(!pt)continue;const atm=Sp>0&&Math.abs(K-Sp)/Sp<.015;
+    const mktData=mktExs.map(ex=>mktOpts.find(m=>m.asset===ca&&m.strike===K&&m.expiry===cur&&m.cp===cp&&m.ex===ex));
+    const liquidData=mktData.filter(m=>m&&isLiquid(m,minExtVol,minExtOI));
+    const mktMids=liquidData.map(m=>m.mid);const mktAvg=mktMids.length?mktMids.reduce((a,b)=>a+b,0)/mktMids.length:0;
+    const diff=mktAvg>0&&pt.mid>0?((pt.mid-mktAvg)/mktAvg*100):null;const ad=diff!=null?Math.abs(diff):0;
+    const signal=diff==null?'':ad<G.th.ptVsMkt?'✅':(diff<0?'🟢 CHEAP':'🔴 RICH');
+    const diffCls=diff==null?'dim':ad<G.th.ptVsMkt?'dim':diff<0?'pos':'neg';
+    h+=`<tr${atm?' style="background:rgba(232,165,21,.04)"':''}><td style="font-weight:600${atm?';color:var(--acc)':''}">$${$n(K)}</td><td>${cp}</td>
+      <td class="${pt.bid==null?'dim':''}">${pt.bid!=null?pt.bid.toFixed(2):'—'}</td>
+      <td class="${pt.ask==null?'dim':''}">${pt.ask!=null?pt.ask.toFixed(2):'—'}</td>
+      <td class="${pt.sprd!=null&&pt.sprd>=pt.dynTh?'risk-hi':'dim'}">${pt.sprd!=null?pt.sprd.toFixed(1):'—'}</td>
+      <td class="dim">${pt.iv?(pt.iv*100).toFixed(1):'—'}</td>`;
+    mktExs.forEach((ex,i)=>{const m=mktData[i];const liq=m&&isLiquid(m,minExtVol,minExtOI);
+      h+=`<td class="${liq?'':'dim'}" style="${!liq?'opacity:.5':''}">${m&&m.bid>0?m.bid.toFixed(2):'—'}</td><td class="${liq?'':'dim'}" style="${!liq?'opacity:.5':''}">${m&&m.ask>0?m.ask.toFixed(2):'—'}</td><td class="dim">${m?.markIv?(m.markIv*100).toFixed(1):'—'}</td>`});
+    h+=`<td class="${diffCls}" style="font-weight:700">${diff!=null?(diff>0?'+':'')+diff.toFixed(1)+'%':'—'}</td><td style="font-size:9px">${signal}</td></tr>`}}
+  h+=`</tbody></table></div>`;return h}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB: PERPS
+// ═══════════════════════════════════════════════════════════════════
+function rPerps(){
+  const allP=[...G.ptPerps,...G.mktPerps.filter(p=>p.isPerpetual)];const assets=[...new Set(allP.map(p=>p.asset))].sort();
+  if(!allP.length)return`<div class="empty">No perp data</div>`;
+  let h=`<div class="info-box">💡 <b>Perpetual futures</b> across PT + external exchanges. Basis% = (mark − index) / index. Funding = 8h rate in bps. <span style="color:var(--acc)">★ PT highlighted.</span></div>`;assets.forEach(asset=>{const rows=allP.filter(p=>p.asset===asset&&p.isPerpetual);if(!rows.length)return;
+    h+=`<div class="card"><div class="card-h"><span class="card-t" style="color:var(--acc)">${asset} PERPETUAL</span><span class="dim" style="font-size:8px">Index: ${G.spots[asset]?'$'+$n(G.spots[asset].toFixed(2)):'?'}</span></div>
+    <div class="tbl-w"><table class="tbl"><thead><tr><th>Exchange</th><th>Mark</th><th>Bid</th><th>Ask</th><th>Basis%</th><th>Funding(bps)</th><th>Vol24h</th><th>OI</th></tr></thead><tbody>
+    ${rows.map(p=>{const isPT=p.ex==='PT';return`<tr${isPT?' style="background:rgba(232,165,21,.04);border-left:2px solid var(--acc)"':''}><td style="font-weight:${isPT?'800':'600'}${isPT?';color:var(--acc)':''}">${p.ex}${isPT?' ★':''}</td>
+      <td>${$$(p.mark)}</td><td class="pos">${p.bid>0?$$(p.bid):'—'}</td><td class="neg">${p.ask>0?$$(p.ask):'—'}</td>
+      <td class="${Math.abs(p.basis)>.05?'risk-md':'dim'}">${p.basis.toFixed(4)}%</td>
+      <td class="${p.funding!=null?(p.funding>0?'pos':'neg'):'dim'}">${p.funding!=null?(p.funding*10000).toFixed(2):'—'}</td>
+      <td class="dim">${p.vol24h>0?$n(Math.round(p.vol24h)):'—'}</td><td class="dim">${p.oi>0?p.oi:'—'}</td></tr>`}).join('')}
+    </tbody></table></div></div>`});return h}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB: CONFIG — with baseline controls
+// ═══════════════════════════════════════════════════════════════════
+function rConf(){const{th,refreshMs}=G;const bl=G.baseline;
+  const inp=(l,k,u,s=1)=>`<div class="th-row"><span class="th-l">${l}</span><input class="th-i" type="number" value="${th[k]}" step="${s}" min="0" onchange="sTh('${k}',+this.value)"/><span class="th-u">${u}</span></div>`;
+  return`<div class="grid g3">
+    <div class="card"><div class="card-t" style="color:var(--acc);margin-bottom:7px">📸 BASELINE (Phase 1)</div>
+      <div style="font-size:9px;color:var(--dim);margin-bottom:7px;line-height:1.5">Captures the quoter's current state as "normal". Alerts fire on deviations from baseline, not hardcoded thresholds.</div>
+      <button class="btn ${bl?'btn-grn':'btn-a'}" style="width:100%;margin-bottom:4px;padding:5px" onclick="doCapture()">📸 ${bl?'RE-CAPTURE':'CAPTURE'} BASELINE NOW</button>
+      ${bl?`<div style="font-size:8px;color:var(--dim);line-height:1.6;margin-top:4px">
+        Captured: <b>${new Date(bl.timestamp).toLocaleTimeString()}</b> (${ago(bl.timestamp)})<br>
+        Live at capture: <b>${bl.quotedCount}</b> / ${bl.totalCount} options<br>
+        Buckets: <b>${Object.keys(bl.buckets).length}</b></div>`:'<div class="dim" style="font-size:8px">No baseline yet — auto-captures on first load</div>'}
+      <div class="th-row" style="margin-top:7px"><span class="th-l">Auto-recapture</span><input class="th-i" type="number" value="${G.autoBlH}" step="1" min="0" onchange="G.autoBlH=+this.value"/><span class="th-u">hrs (0=off)</span></div>
+      ${inp('Warning multiplier','blWarn','×p95',0.5)}
+      ${inp('Critical multiplier','blCrit','×p95',0.5)}
+      ${bl?`<div class="card" style="margin-top:5px;padding:6px"><div class="card-t" style="margin-bottom:3px">BUCKET BASELINES</div><div class="tbl-w" style="max-height:200px"><table class="tbl"><thead><tr><th>Bucket</th><th>Quoted</th><th>Med%</th><th>P75%</th><th>P95%</th><th>Th%</th></tr></thead><tbody>
+      ${Object.entries(bl.buckets).sort(([a],[b])=>a.localeCompare(b)).map(([k,b])=>`<tr><td style="font-weight:600">${k}</td><td>${b.quoted}/${b.total}</td><td>${b.median?.toFixed(1)||'—'}</td><td>${b.p75?.toFixed(1)||'—'}</td><td>${b.p95?.toFixed(1)||'—'}</td><td style="color:var(--acc)">${b.p95?(b.p95*th.blWarn).toFixed(1):'—'}</td></tr>`).join('')}
+      </tbody></table></div></div>`:''}</div>
+    <div class="card"><div class="card-t" style="color:var(--prp);margin-bottom:7px">📊 CROSS-EXCHANGE</div>
+      ${inp('PT vs Market diff','ptVsMkt','%',1)}${inp('IV Arb threshold','ivArb','vol pts',1)}${inp('Perp basis diff','perpBps','bps',1)}${inp('Funding rate diff','fundBps','bps',1)}</div>
+    <div class="card"><div class="card-t" style="color:var(--cyn);margin-bottom:7px">💧 LIQUIDITY FILTERS</div>
+      ${inp('Min ext vol (24h)','minExtVol','$',10000)}${inp('Min ext OI','minExtOI','contracts',1)}${inp('Low Vol (% of group avg)','lowVolPct','%',5)}</div>
+    <div class="card"><div class="card-t" style="color:var(--grn);margin-bottom:7px">⚡ PRESETS</div>
+      <button class="preset${th.ptVsMkt===8&&th.ivArb===3?' btn-a':''}" onclick="pre({ptVsMkt:8,ivArb:3,perpBps:2,fundBps:3,lowVolPct:10,minExtVol:200000,minExtOI:20,blWarn:1.3,blCrit:2.5})">🔬 <b>Tight</b> — BTC/ETH liquid</button>
+      <button class="preset${th.ptVsMkt===20&&th.ivArb===8?' btn-a':''}" onclick="pre({ptVsMkt:20,ivArb:8,perpBps:5,fundBps:6,lowVolPct:10,minExtVol:50000,minExtOI:5,blWarn:1.5,blCrit:3.0})">⚖️ <b>Normal</b> — altcoin (default)</button>
+      <button class="preset${th.ptVsMkt===40&&th.ivArb===15?' btn-a':''}" onclick="pre({ptVsMkt:40,ivArb:15,perpBps:10,fundBps:12,lowVolPct:5,minExtVol:10000,minExtOI:1,blWarn:2.0,blCrit:5.0})">🎯 <b>Ultra-Wide</b> — extreme only</button></div>
+    <div class="card"><div class="card-t" style="color:var(--org);margin-bottom:7px">🔌 CONNECTIONS</div>
+      <div class="th-row"><span class="th-l">Auto-Refresh</span><input class="th-i" type="number" value="${refreshMs/1000}" step="5" min="10" onchange="sR(+this.value*1000)"/><span class="th-u">sec</span></div>
+      <div style="margin-top:6px;font-size:8px;color:var(--dim);line-height:1.7"><b>APIs (public, no auth):</b><br>
+        <span style="color:var(--acc);font-weight:700">★ PT:</span> api.rest.prod.power.trade<br>Deribit · OKX · Bybit · CoinCall<br>Assets: BTC · ETH · SOL</div></div>
+    <div class="card"><div class="card-t" style="color:var(--org);margin-bottom:7px">💵 FEES</div>
+      <div class="tbl-w"><table class="tbl"><thead><tr><th>Exchange</th><th>Maker</th><th>Taker</th></tr></thead><tbody>
+      ${Object.entries(FEES).map(([e,f])=>`<tr><td style="${e==='PT'?'color:var(--acc);font-weight:700':''}">${e}</td><td>${(f.m*100).toFixed(2)}%</td><td>${(f.t*100).toFixed(2)}%</td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  ${G.errors.length?`<div class="card" style="margin-top:6px"><div class="card-t" style="color:var(--red);margin-bottom:3px">⚠ Errors</div><div class="dim" style="font-size:8px;line-height:1.5">${G.errors.map(e=>`• ${e}`).join('<br>')}</div></div>`:''}`}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════════════════════
+function render(){
+  const{tab,tick,live,loading,conn,spots,alerts,ptOpts,ptPerps,mktOpts,lastUp}=G;
+  const items=G.ptItems||[];const bl=G.baseline;const blH=calcBlHealth();
+  const nc=alerts.filter(a=>a.sev==='critical').length,nw=alerts.filter(a=>a.sev==='warning').length;
+  const nAct=alerts.filter(a=>a.profitable&&a.net>0).length;
+
+  // Health score — baseline-relative if available
+  const hp=blH?blH.quoterHealth:(items.length>0?Math.round(items.filter(o=>o.status==='QUOTED').length/items.length*100):0);
+  const hCol=hp>=80?'var(--grn)':hp>=50?'var(--org)':'var(--red)';
+  const hLabel=blH?`${blH.matching}/${blH.blQuoted}`:`${items.filter(o=>o.status==='QUOTED').length}/${items.length}`;
+
+  const fa=alerts.filter(a=>(G.fAsset==='ALL'||a.asset===G.fAsset)&&(G.fCat==='ALL'||a.cat===G.fCat)&&(G.fSev==='ALL'||a.sev===G.fSev)&&(!G.fProf||a.profitable)&&(!G.fPersist||a.persistCount>1));
+  const tabs=[{id:'health',l:'🏥 HEALTH'},{id:'alerts',l:'🚨 ALERTS',n:fa.length,crit:nc>0},{id:'compare',l:'⚖️ COMPARE'},{id:'perps',l:'📊 PERPS'},{id:'config',l:'🎚 CONFIG'}];
+
+  // Baseline age indicator
+  const blAge=bl?((Date.now()-bl.timestamp)/3600000):null;
+  const blAgeCol=blAge==null?'var(--dim)':blAge<2?'var(--grn)':blAge<8?'var(--org)':'var(--red)';
+  const blAgeTxt=bl?ago(bl.timestamp):'none';
+
+  const ch=Object.entries(conn).map(([ex,c])=>{const stale=c.ok&&c.lat>3000;const cl=c.ok?'ok':(loading?'load':'err');const isPT=ex==='PT';const dataAge=c.lastFetch?ago(c.lastFetch):'—';
+    return`<div class="conn ${cl}${stale?' stale':''}"><div class="dot" style="background:${c.ok?'var(--grn)':(loading?'var(--acc)':'var(--red)')};${c.ok&&!stale?'box-shadow:0 0 4px var(--grn)':''}"></div>
+    <span style="color:${isPT&&c.ok?'var(--acc)':(c.ok?'var(--grn)':(loading?'var(--acc)':'var(--red)'))};font-weight:${isPT?'800':'600'}">${ex}${isPT?' ★':''}</span>
+    ${c.ok?`<span class="dim">${c.n}·${c.lat}ms·${dataAge}</span>`:(loading?'<span class="spinner"></span>':`<span class="dim">fail</span>`)}</div>`}).join('');
+  const sh=Object.entries(spots).map(([a,p])=>`<span class="spot-item">${a} <b style="color:var(--acc)">$${$n(p.toFixed(a==='BTC'?0:2))}</b></span>`).join('');
+
+  document.getElementById('app').innerHTML=`
+  <div class="hdr"><div class="logo"><div class="logo-i">🚨</div><div><div class="logo-t">POWERTRADE POLICE</div><div class="logo-s">BASELINE LEARNING · EXECUTABLE ARB · IV DISLOCATION · v5</div></div></div>
+    <div class="hdr-r">${loading?'<span class="spinner"></span>':''}
+    <div class="bl-age" style="color:${blAgeCol};border-color:${blAgeCol}40">📸 BL: ${blAgeTxt}</div>
+    <button class="btn btn-grn" onclick="doCapture()" title="Capture baseline from current quoter state">📸 BASELINE</button>
+    <div class="dot" style="background:${live?'var(--grn)':'var(--dim)'}${live?';box-shadow:0 0 5px var(--grn);animation:pulse 2s infinite':''}"></div>
+    <button class="btn" onclick="tL()">${live?`LIVE ${G.refreshMs/1000}s`:'PAUSED'}</button>
+    <button class="btn btn-a" onclick="refresh()">↻ REFRESH</button>
+    <button class="btn" onclick="exportCSV()">⬇ CSV</button>
+    <span class="dim" style="font-size:8px">#${tick} ${lastUp?lastUp.toLocaleTimeString():''}</span></div></div>
+  <div class="conn-bar">${ch}<span style="margin-left:auto;font-size:8px" class="dim">${ptOpts.length} PT opts · ${mktOpts.length} mkt opts${G.suppressed?` · <span style="color:var(--org)">${G.suppressed} suppressed</span>`:''}</span></div>
+  ${sh?`<div class="spot-bar">${sh}</div>`:''}
+  <div class="kpi-bar">
+    <div class="kpi"><div class="kpi-l">${bl?'Quoter Health':'PT Health'}</div><div class="kpi-v" style="color:${hCol}">${hp}%</div><div class="kpi-s">${hLabel}</div></div>
+    ${bl?`<div class="kpi"><div class="kpi-l">Coverage</div><div class="kpi-v" style="color:${(blH?.coverage||0)>=90?'var(--grn)':(blH?.coverage||0)>=70?'var(--org)':'var(--red)'}">${blH?.coverage||0}%</div><div class="kpi-s">${blH?.coveredCount||0}/${blH?.blQuoted||0} live</div></div>
+    <div class="kpi"><div class="kpi-l">Spread Drift</div><div class="kpi-v" style="color:${(blH?.spreadDrift||1)<=1.3?'var(--grn)':(blH?.spreadDrift||1)<=2?'var(--org)':'var(--red)'}">${blH?.spreadDrift?.toFixed(2)||'—'}x</div><div class="kpi-s">avg vs baseline</div></div>`
+    :`<div class="kpi"><div class="kpi-l">Problems</div><div class="kpi-v" style="color:var(--red)">${items.filter(o=>o.status!=='QUOTED').length}</div><div class="kpi-s">wide/empty/1-side</div></div>`}
+    <div class="kpi"><div class="kpi-l">Critical</div><div class="kpi-v" style="color:var(--red)">${nc}</div><div class="kpi-s">${nw} warnings</div></div>
+    <div class="kpi"><div class="kpi-l">Actionable</div><div class="kpi-v" style="color:var(--grn)">${nAct}</div><div class="kpi-s">net+ after fees</div></div>
+    ${bl?`<div class="kpi"><div class="kpi-l">Suppressed</div><div class="kpi-v" style="color:var(--dim)">${G.suppressed}</div><div class="kpi-s">noise filtered</div></div>`:
+    `<div class="kpi"><div class="kpi-l">PT Opts</div><div class="kpi-v" style="color:var(--acc)">${ptOpts.length}</div></div>`}
+  </div>
+  <div class="tabs">${tabs.map(t=>`<button class="tab${tab===t.id?' on':''}" onclick="sTab('${t.id}')">${t.l}${t.n!=null?`<span class="cnt${t.crit?' crit':''}">${t.n}</span>`:''}</button>`).join('')}</div>
+  <div class="main">${!ptOpts.length&&!mktOpts.length&&!loading?
+    `<div class="warn-box">⚠ <b>No data loaded.</b> CORS blocks file:// requests.<br><code style="color:var(--acc)">python3 -m http.server 8080</code> then open localhost:8080</div>`:''}${
+    tab==='health'?rHealth():tab==='alerts'?rAlerts():tab==='compare'?rComp():tab==='perps'?rPerps():tab==='config'?rConf():''}</div>
+  <div class="footer"><span>VIVI Risk Team · PowerTrade Police v5 · PT + Deribit + OKX + Bybit + CoinCall · BTC/ETH/SOL</span>
+    <span>Baseline learning · Fee-aware arb · Slippage 0.5% · ${lastUp?lastUp.toISOString():''}</span></div>`}
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════════
+function sTab(t){G.tab=t;render()}
+function sF(k,v){G[k]=v;render()}
+function sTh(k,v){G.th[k]=v;G.ptItems=analyzeHealth(G.ptOpts);G.alerts=detect(G.ptItems,G.ptPerps,G.mktOpts,G.mktPerps,G.th);render()}
+function pre(p){G.th={...G.th,...p};G.ptItems=analyzeHealth(G.ptOpts);G.alerts=detect(G.ptItems,G.ptPerps,G.mktOpts,G.mktPerps,G.th);render()}
+function togA(id){G.openA=G.openA===id?null:id;render()}
+function tL(){G.live=!G.live;if(timer)clearInterval(timer);if(G.live)timer=setInterval(refresh,G.refreshMs);render()}
+function sR(ms){G.refreshMs=Math.max(10000,ms);if(timer)clearInterval(timer);if(G.live)timer=setInterval(refresh,G.refreshMs);render()}
+function doCapture(){G.baseline=captureBaseline();G.ptItems=analyzeHealth(G.ptOpts);G.alerts=detect(G.ptItems,G.ptPerps,G.mktOpts,G.mktPerps,G.th);render()}
+
+// BOOT
+(async()=>{await refresh();if(G.live)timer=setInterval(refresh,G.refreshMs)})();
+</script>
+</body>
+</html>
