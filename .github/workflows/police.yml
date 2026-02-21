@@ -1,0 +1,52 @@
+name: PT Police Alerts
+
+on:
+  schedule:
+    # Every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no alerts sent)'
+        type: boolean
+        default: false
+      recapture_baseline:
+        description: 'Force baseline recapture'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write  # needed to commit baseline.json
+
+jobs:
+  police:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Delete baseline if forced recapture
+        if: ${{ github.event.inputs.recapture_baseline == 'true' }}
+        run: rm -f baseline.json
+
+      - name: Run alert engine
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERT_MIN_CONFIDENCE: '50'
+          ONLY_CRITICAL: 'false'
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: node alert-engine.js
+
+      - name: Commit baseline if changed
+        run: |
+          git config user.name "PT Police Bot"
+          git config user.email "police-bot@powertrade.exchange"
+          git add baseline.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Update baseline [skip ci]" && git push || true
