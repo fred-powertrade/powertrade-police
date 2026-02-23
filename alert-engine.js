@@ -9,9 +9,13 @@ const path = require('path');
 
 // ── Config from environment ─────────────────────────────────────
 const ENV = process.env.PT_ENV || 'testnet'; // 'testnet' or 'prod'
-const PT_API = ENV === 'prod'
-  ? 'https://powertrade-web-test.web.app/'
-  : 'https://powertrade-web-test.web.app/';
+const PT_REST_URLS = ENV === 'prod'
+  ? ['https://api.rest.prod.power.trade']
+  : ['https://api.rest.dev.power.trade', 'https://api.rest.test.power.trade'];
+let PT_API = PT_REST_URLS[0]; // will auto-fallback
+
+// CoinCall altcoins to auto-try (matched against PT-discovered assets)
+const COINCALL_ALTS = ['BTC','ETH','SOL','ADA','BNB','DOGE','XRP','AVAX','DOT','LINK','UNI','AAVE','NEAR','APT','ARB','OP','SUI','TIA','SEI','JUP','WIF','PEPE','BONK','FLOKI','SHIB','MEME','TON','MATIC','FTM','INJ','TRX','LTC','BCH','FIL','ATOM','ICP'];
 const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK || '';
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
@@ -21,10 +25,13 @@ const ONLY_CRITICAL = (process.env.ONLY_CRITICAL || 'false') === 'true';
 const DRY_RUN = (process.env.DRY_RUN || 'false') === 'true';
 
 // ── HTTP fetch helper ───────────────────────────────────────────
-async function fj(url) {
+async function fj(url, timeoutMs = 15000) {
   const t0 = Date.now();
   try {
-    const r = await fetch(url);
+    const ctrl = new AbortController();
+    const tmr = setTimeout(() => ctrl.abort(), timeoutMs);
+    const r = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tmr);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return { ok: true, data: await r.json(), lat: Date.now() - t0 };
   } catch (e) {
@@ -73,9 +80,13 @@ function parseCCI(sym) {
 
 // ── Exchange fetchers ───────────────────────────────────────────
 async function fetchPT() {
-  const r = await fj(`${PT_API}/v1/market_data/tradeable_entity/all/summary`);
-  if (!r.ok) return { opts:[], perps:[], spots:{}, ok:false };
-  const opts=[], perps=[], spots={};
+  let r = null;
+  for (const url of PT_REST_URLS) {
+    r = await fj(`${url}/v1/market_data/tradeable_entity/all/summary`);
+    if (r.ok) { PT_API = url; break; }
+  }
+  if (!r || !r.ok) return { opts:[], perps:[], spots:{}, assets:new Set(), ok:false };
+  const opts=[], perps=[], spots={}, assets=new Set();
   for (const t of r.data) {
     const bid=t.best_bid?parseFloat(t.best_bid):null, ask=t.best_ask?parseFloat(t.best_ask):null;
     const last=t.last_price?parseFloat(t.last_price):null, idx=t.index_price?parseFloat(t.index_price):null;
@@ -85,17 +96,17 @@ async function fetchPT() {
       const S=idx||0, mid=bid!=null&&ask!=null?(bid+ask)/2:(bid||ask||last||0);
       const sprd=bid!=null&&ask!=null&&mid>0?((ask-bid)/mid)*100:null;
       opts.push({ex:'PT',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,last,spot:S,sprd,vol24h:vol,oi,raw:t.symbol});
-      if (S>0) spots[p.asset] = S;
+      if (S>0) spots[p.asset] = S; assets.add(p.asset);
     } else if (t.product_type === 'perpetual_future') {
       const asset=t.symbol.split('-')[0]; const mark=last||((bid||0)+(ask||0))/2;
       const funding=t.funding_rate?parseFloat(t.funding_rate):null;
       perps.push({ex:'PT',asset,isPerpetual:true,instrument:t.symbol,mark,bid,ask,spot:idx||0,funding,basis:idx>0?(mark-idx)/idx*100:0});
-      if (idx>0) spots[asset] = idx;
+      if (idx>0) spots[asset] = idx; assets.add(asset);
     } else if (t.product_type === 'index') {
-      const asset=t.symbol.split('-')[0]; if (idx>0) spots[asset] = idx;
+      const asset=t.symbol.split('-')[0]; if (idx>0) spots[asset] = idx; assets.add(asset);
     }
   }
-  return { opts, perps, spots, ok:true };
+  return { opts, perps, spots, assets, ok:true };
 }
 
 async function fetchDeribit(asset) {
@@ -167,9 +178,9 @@ async function fetchBybit(asset) {
 async function fetchCoinCall(asset) {
   const idx = asset + 'USD';
   const [oR,fR,frR] = await Promise.all([
-    fj(`https://api.coincall.com/open/option/getOptionChain/v1/${idx}`),
-    fj(`https://api.coincall.com/open/futures/market/getSymbolInfo/v1`),
-    fj(`https://api.coincall.com/open/public/fundingRate/v1/${idx}`)]);
+    fj(`https://api.coincall.com/open/option/getOptionChain/v1/${idx}`, 8000),
+    fj(`https://api.coincall.com/open/futures/market/getSymbolInfo/v1`, 8000),
+    fj(`https://api.coincall.com/open/public/fundingRate/v1/${idx}`, 8000)]);
   const opts=[], perps=[]; let spot=0;
   if (oR.ok && oR.data?.data) {
     for (const row of oR.data.data) {
@@ -410,7 +421,7 @@ async function sendTelegram(alerts, summary) {
 // ── Main ────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n═══ PT Police Alert Engine [${ENV.toUpperCase()}] — ${new Date().toISOString()} ═══\n`);
-  console.log(`PT API: ${PT_API}`);
+  console.log(`PT API: trying ${PT_REST_URLS.join(', ')}`);
 
   // Load baseline
   let baseline = null;
@@ -422,29 +433,33 @@ async function main() {
     } catch(e) { console.log('Failed to load baseline:', e.message); }
   }
 
-  // Fetch all exchanges
-  console.log('Fetching PT + Deribit + OKX + Bybit + CoinCall...');
-  const [ptR, ...mktRs] = await Promise.allSettled([
-    fetchPT(),
-    fetchDeribit('BTC'), fetchDeribit('ETH'), fetchDeribit('SOL'),
-    fetchOKX('BTC'), fetchOKX('ETH'),
-    fetchBybit('BTC'), fetchBybit('ETH'), fetchBybit('SOL'),
-    fetchCoinCall('BTC'), fetchCoinCall('ETH'), fetchCoinCall('SOL')
-  ]);
+  // 1. Fetch PT first (discovers all assets)
+  console.log('Fetching PT...');
+  const ptR = await fetchPT();
+  if (!ptR.ok) { console.error('PT fetch failed on all URLs — aborting'); process.exit(1); }
+  const pt = ptR;
+  const ptAssets = pt.assets || new Set();
+  console.log(`PT: ${pt.opts.length} opts, ${pt.perps.length} perps, ${ptAssets.size} assets [${[...ptAssets].join(',')}]`);
+  console.log(`PT API connected: ${PT_API}`);
 
-  if (ptR.status !== 'fulfilled' || !ptR.value?.ok) {
-    console.error('PT fetch failed — aborting'); process.exit(1);
-  }
-  const pt = ptR.value;
-  console.log(`PT: ${pt.opts.length} opts, ${pt.perps.length} perps`);
+  // 2. Build dynamic external fetch list
+  const fetches = [], fetchLabels = [];
+  for (const a of ['BTC','ETH','SOL']) { fetches.push(fetchDeribit(a)); fetchLabels.push(`Deribit-${a}`); }
+  for (const a of ['BTC','ETH'])       { fetches.push(fetchOKX(a));     fetchLabels.push(`OKX-${a}`); }
+  for (const a of ['BTC','ETH','SOL']) { fetches.push(fetchBybit(a));   fetchLabels.push(`Bybit-${a}`); }
+  // CoinCall: BTC,ETH,SOL + any PT-discovered altcoin from known list
+  const ccAssets = ['BTC','ETH','SOL', ...[...ptAssets].filter(a => !['BTC','ETH','SOL'].includes(a) && COINCALL_ALTS.includes(a))];
+  for (const a of ccAssets) { fetches.push(fetchCoinCall(a)); fetchLabels.push(`CoinCall-${a}`); }
+
+  console.log(`Fetching ${fetches.length} external: ${fetchLabels.join(', ')}...`);
+  const mktRs = await Promise.allSettled(fetches);
 
   let mktOpts = [], mktPerps = [];
-  const exNames = ['Deribit','Deribit','Deribit','OKX','OKX','Bybit','Bybit','Bybit','CoinCall','CoinCall','CoinCall'];
   mktRs.forEach((r, i) => {
     if (r.status === 'fulfilled' && r.value) {
       if (r.value.oOk) mktOpts = mktOpts.concat(r.value.opts);
       if (r.value.fOk) mktPerps = mktPerps.concat(r.value.perps);
-    } else { console.log(`${exNames[i]} fetch failed`); }
+    } else { console.log(`${fetchLabels[i]} fetch failed: ${r.reason || 'unknown'}`); }
   });
   console.log(`Market: ${mktOpts.length} opts, ${mktPerps.length} perps`);
 
