@@ -14,9 +14,16 @@ on:
         description: 'Force baseline recapture'
         type: boolean
         default: false
+      environment:
+        description: 'Environment'
+        type: choice
+        options:
+          - testnet
+          - prod
+        default: testnet
 
 permissions:
-  contents: write  # needed to commit baseline.json
+  contents: write
 
 jobs:
   police:
@@ -36,6 +43,7 @@ jobs:
 
       - name: Run alert engine
         env:
+          PT_ENV: ${{ github.event.inputs.environment || 'testnet' }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
