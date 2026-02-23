@@ -75,7 +75,7 @@ select,input,button{outline:none;font-family:var(--fm);font-size:10px}
 // CONFIG — change ENV to switch testnet ↔ prod
 // ═══════════════════════════════════════════════════════════════
 const ENV='testnet';
-const PT_API=ENV==='prod'?'https://api.rest.prod.power.trade':'https://powertrade-web-test.web.app/trade/options';
+const PT_API=ENV==='prod'?'https://api.rest.prod.power.trade':'https://powertrade-web-test.web.app/trade';
 const ENV_LABEL=ENV==='prod'?'PROD':'TESTNET';
 const ENV_CLASS=ENV==='prod'?'env-prod':'env-testnet';
 
