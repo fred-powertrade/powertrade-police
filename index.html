@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>PowerTrade Police v5.1</title>
+<title>PT Police v5.1</title>
 <style>
 :root{--bg:#05080d;--bg2:#080c12;--card:#0b0f17;--bdr:#16202e;--tx:#bcc6d4;--dim:#48576a;--mut:#2c3848;--wh:#e8edf3;--acc:#e8a515;--accD:rgba(232,165,21,.12);--accB:rgba(232,165,21,.3);--red:#f04040;--redBg:rgba(240,64,64,.07);--redBd:rgba(240,64,64,.22);--org:#f59e0b;--orgBg:rgba(245,158,11,.07);--orgBd:rgba(245,158,11,.22);--grn:#1fbc58;--grnBg:rgba(31,188,88,.07);--grnBd:rgba(31,188,88,.22);--blu:#3b82f6;--bluBg:rgba(59,130,246,.07);--cyn:#06b6d4;--prp:#a78bfa;--prpBg:rgba(167,139,250,.07);--fm:'JetBrains Mono','Cascadia Code','Fira Code','Consolas',monospace}
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-size:11px;overflow-x:hidden}
 ::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
-select,input,button{outline:none;font-family:var(--fm);font-size:10px}
+select,input,button,a{outline:none;font-family:var(--fm);font-size:10px}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes glow{0%,100%{box-shadow:0 0 6px rgba(232,165,21,.1)}50%{box-shadow:0 0 18px rgba(232,165,21,.35)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes newAlert{from{background:rgba(232,165,21,.08)}to{background:transparent}}
 .spinner{display:inline-block;width:9px;height:9px;border:1.5px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin .5s linear infinite}
 .hdr{background:var(--card);border-bottom:1px solid var(--bdr);padding:6px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:8px}.logo-i{width:30px;height:30px;border-radius:5px;background:linear-gradient(135deg,var(--acc),var(--red));display:flex;align-items:center;justify-content:center;font-size:15px;animation:glow 3s infinite;flex-shrink:0}.logo-t{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--acc);line-height:1.1}.logo-s{font-size:7px;color:var(--dim);letter-spacing:.06em}
 .hdr-r{display:flex;gap:4px;align-items:center;margin-left:auto;flex-wrap:wrap}
-.btn{background:none;border:1px solid var(--bdr);border-radius:3px;color:var(--dim);padding:2px 7px;cursor:pointer;font-size:9px;transition:all .12s;font-family:var(--fm)}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn-a{background:var(--accD);border-color:var(--accB);color:var(--acc)}.btn-red{background:var(--redBg);border-color:var(--redBd);color:var(--red)}.btn-grn{background:var(--grnBg);border-color:var(--grnBd);color:var(--grn)}
+.btn{background:none;border:1px solid var(--bdr);border-radius:3px;color:var(--dim);padding:2px 7px;cursor:pointer;font-size:9px;transition:all .12s;font-family:var(--fm)}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn-a{background:var(--accD);border-color:var(--accB);color:var(--acc)}.btn-grn{background:var(--grnBg);border-color:var(--grnBd);color:var(--grn)}
 .dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
 .conn-bar{display:flex;gap:6px;padding:4px 14px;border-bottom:1px solid rgba(22,32,46,.6);font-size:8px;align-items:center;flex-wrap:wrap;background:var(--bg2)}
 .conn{display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;border:1px solid var(--bdr)}.conn.ok{border-color:var(--grnBd);background:var(--grnBg)}.conn.err{border-color:var(--redBd);background:var(--redBg)}.conn.load{border-color:var(--orgBd)}
@@ -22,7 +23,7 @@ select,input,button{outline:none;font-family:var(--fm);font-size:10px}
 .kpi-bar{display:flex;gap:5px;padding:7px 14px;overflow-x:auto;background:var(--bg)}
 .kpi{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:7px 10px;min-width:82px;flex-shrink:0}.kpi-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}.kpi-v{font-size:17px;font-weight:800;line-height:1.2}.kpi-s{font-size:8px;color:var(--mut)}
 .tabs{display:flex;gap:0;padding:0 14px;border-bottom:1px solid var(--bdr);overflow-x:auto;background:var(--bg);position:sticky;top:43px;z-index:99}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:var(--fm);font-size:9px;font-weight:700;padding:6px 9px;letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:all .1s}.tab:hover{color:var(--tx)}.tab.on{color:var(--acc);border-bottom-color:var(--acc)}.tab .cnt{margin-left:3px;background:var(--bdr);padding:0 4px;border-radius:6px;font-size:8px}.tab.on .cnt{background:rgba(232,165,21,.15);color:var(--acc)}.tab.on .cnt.crit{background:var(--redBg);color:var(--red)}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:var(--fm);font-size:9px;font-weight:700;padding:6px 9px;letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:all .1s}.tab:hover{color:var(--tx)}.tab.on{color:var(--acc);border-bottom-color:var(--acc)}.tab .cnt{margin-left:3px;background:var(--bdr);padding:0 4px;border-radius:6px;font-size:8px}.tab.on .cnt{background:rgba(232,165,21,.15);color:var(--acc)}
 .main{padding:8px 14px 20px}
 .card{background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:9px;margin-bottom:7px;animation:fadeUp .18s ease}.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:3px}.card-t{font-size:9px;font-weight:700;letter-spacing:.05em}
 .badge{display:inline-flex;padding:1px 5px;border-radius:2px;font-size:8px;font-weight:700;letter-spacing:.04em}
@@ -30,85 +31,106 @@ select,input,button{outline:none;font-family:var(--fm);font-size:10px}
 .tbl{width:100%;border-collapse:collapse;font-size:9px}.tbl th{padding:4px 6px;text-align:right;color:var(--dim);font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--card);white-space:nowrap}.tbl td{padding:3px 6px;text-align:right;border-bottom:1px solid rgba(22,32,46,.4)}.tbl th:first-child,.tbl td:first-child{text-align:left}.tbl-w{background:var(--card);border:1px solid var(--bdr);border-radius:4px;overflow:auto;max-height:580px}.tbl tr:hover{background:rgba(232,165,21,.025)}
 .filters{display:flex;gap:4px;margin-bottom:7px;flex-wrap:wrap;align-items:center}
 .flt{background:var(--card);border:1px solid var(--bdr);border-radius:3px;color:var(--tx);padding:2px 5px;font-size:9px}
-.alert-row{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:6px 10px;margin-bottom:3px;cursor:pointer;border-left:3px solid var(--org);animation:fadeUp .12s ease}.alert-row.crit{border-left-color:var(--red);border-color:var(--redBd)}.alert-row.new-alert{animation:newAlert 2s ease}
+.alert-row{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:6px 10px;margin-bottom:3px;cursor:pointer;border-left:3px solid var(--org);animation:fadeUp .12s ease}.alert-row.crit{border-left-color:var(--red);border-color:var(--redBd)}
 .alert-hd{display:flex;align-items:center;gap:4px;flex-wrap:wrap}.alert-t{font-size:10px;font-weight:600;flex:1;min-width:0}.alert-d{margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr);display:none;font-size:9px;color:var(--dim);line-height:1.6}.alert-row.open .alert-d{display:block}
 .warn-box{background:var(--orgBg);border:1px solid var(--orgBd);border-radius:4px;padding:7px 9px;margin-bottom:7px;font-size:9px;color:var(--org);line-height:1.5}
 .info-box{background:var(--bluBg);border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:7px 9px;margin-bottom:7px;font-size:9px;color:var(--blu);line-height:1.5}
 .neg{color:var(--red)}.pos{color:var(--grn)}.dim{color:var(--dim)}.acc{color:var(--acc)}
-.risk-hi{color:var(--red)!important;font-weight:700!important}.risk-md{color:var(--org)!important;font-weight:600!important}
-.grid{display:grid;gap:7px}.g2{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.g3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.g4{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.risk-hi{color:var(--red)!important;font-weight:700!important}
+.grid{display:grid;gap:7px}.g2{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}.g3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .bl-age{font-size:8px;padding:1px 6px;border-radius:3px;border:1px solid var(--bdr);display:inline-flex;align-items:center;gap:3px}
 .env-badge{font-size:8px;padding:2px 8px;border-radius:3px;font-weight:800;letter-spacing:.08em}.env-testnet{background:var(--orgBg);border:1px solid var(--orgBd);color:var(--org)}.env-prod{background:var(--grnBg);border:1px solid var(--grnBd);color:var(--grn)}
 .empty{padding:20px;text-align:center;color:var(--dim);font-size:11px}
 .footer{padding:6px 14px;border-top:1px solid var(--bdr);font-size:7px;color:var(--mut);display:flex;justify-content:space-between;flex-wrap:wrap;background:var(--bg2);gap:4px}
 .score-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;border:2.5px solid;flex-shrink:0}
 .th-row{display:flex;align-items:center;gap:5px;margin-bottom:5px}.th-l{font-size:9px;color:var(--dim);width:150px}.th-i{width:60px;padding:3px 6px;background:var(--bg);border:1px solid var(--bdr);border-radius:3px;color:var(--acc);text-align:right;font-size:10px}.th-u{font-size:8px;color:var(--mut)}
-/* Quote Health specific */
-.qh-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));margin-bottom:7px}
-.qh-card{background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:8px;position:relative;overflow:hidden}
+/* Quote Health */
+.qh-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-bottom:7px}
+.qh-card{background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:8px;overflow:hidden}
 .qh-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .qh-asset{font-size:13px;font-weight:800;color:var(--acc)}
 .qh-pct{font-size:20px;font-weight:800}
 .qh-bar{height:6px;border-radius:3px;background:var(--bdr);overflow:hidden;margin:4px 0}
 .qh-fill{height:100%;border-radius:3px;transition:width .3s}
 .qh-stats{font-size:8px;color:var(--dim);display:flex;gap:8px;margin-top:4px}
-.qh-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:1px;margin-top:6px}
-.qh-cell{width:14px;height:10px;border-radius:1px;cursor:pointer;transition:transform .1s}.qh-cell:hover{transform:scale(1.5);z-index:5;position:relative}
+.qh-mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(12px,1fr));gap:1px;margin-top:6px}
+.qh-c{width:12px;height:9px;border-radius:1px;cursor:pointer;transition:transform .1s}.qh-c:hover{transform:scale(1.6);z-index:5;position:relative}
 .qh-q{background:rgba(31,188,88,.45)}.qh-w{background:rgba(245,158,11,.5)}.qh-o{background:rgba(240,100,40,.5)}.qh-e{background:rgba(240,64,64,.12);border:1px solid rgba(240,64,64,.15)}
 .qh-legend{display:flex;gap:10px;margin-bottom:8px;font-size:8px;color:var(--dim)}
-.qh-leg-dot{width:10px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:3px}
-.qh-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px;margin-bottom:7px}
-.qh-sum-card{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:6px 8px;text-align:center}
-.qh-sum-n{font-size:22px;font-weight:800}.qh-sum-l{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
-/* Expiry heatmap table */
-.exp-tbl{width:100%;border-collapse:collapse;font-size:8px}
-.exp-tbl th{padding:3px 4px;text-align:center;color:var(--dim);font-weight:700;font-size:7px;border-bottom:1px solid var(--bdr);white-space:nowrap}
-.exp-tbl td{padding:2px 4px;text-align:center;border-bottom:1px solid rgba(22,32,46,.3)}
-.exp-tbl th:first-child,.exp-tbl td:first-child{text-align:left;font-weight:700}
+.qh-ld{width:10px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:3px}
+.qh-sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:5px;margin-bottom:7px}
+.qh-sk{background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:6px 8px;text-align:center}
+.qh-sn{font-size:22px;font-weight:800}.qh-sl{font-size:7px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
 .exp-pct{display:inline-block;padding:1px 4px;border-radius:2px;font-weight:700;font-size:8px;min-width:32px}
+.pt-link{font-size:8px;color:var(--cyn);text-decoration:none;border:1px solid rgba(6,182,212,.2);padding:1px 5px;border-radius:2px}.pt-link:hover{background:rgba(6,182,212,.1);text-decoration:none}
 </style>
 </head>
 <body>
 <div id="app"><div style="display:flex;align-items:center;justify-content:center;height:100vh;gap:10px;color:var(--acc)"><div class="spinner" style="width:20px;height:20px"></div><span style="font-family:var(--fm);font-size:13px;letter-spacing:.08em">CONNECTING...</span></div></div>
 <script>
 // ═══════════════════════════════════════════════════════════════
-// CONFIG — change ENV to switch testnet ↔ prod
+// CONFIG — ONE LINE to switch testnet ↔ prod
 // ═══════════════════════════════════════════════════════════════
-const ENV='testnet';
-const PT_API=ENV==='prod'?'https://api.rest.prod.power.trade':'https://powertrade-web-test.web.app/';
-const ENV_LABEL=ENV==='prod'?'PROD':'TESTNET';
-const ENV_CLASS=ENV==='prod'?'env-prod':'env-testnet';
+const ENV = 'testnet';
 
-// Which assets to fetch per external exchange (add more as needed)
-const EXT_ASSETS={
-  Deribit:['BTC','ETH','SOL'],       // Deribit only lists these for options
-  OKX:['BTC','ETH'],                  // OKX options are BTC/ETH only
-  Bybit:['BTC','ETH','SOL']           // Bybit options
-  // CoinCall: auto-discovered from PT assets
+const ENVS = {
+  testnet: {
+    label: 'TESTNET',
+    cls: 'env-testnet',
+    restUrls: ['https://api.rest.dev.power.trade','https://api.rest.test.power.trade'],
+    webBase: 'https://powertrade-web-test.web.app',
+  },
+  prod: {
+    label: 'PROD',
+    cls: 'env-prod',
+    restUrls: ['https://api.rest.prod.power.trade'],
+    webBase: 'https://app.power.trade',
+  }
 };
+const CFG = ENVS[ENV];
+let PT_API = CFG.restUrls[0]; // will auto-fallback if first fails
+
+function ptWebLink(asset, type='options') {
+  return `${CFG.webBase}/en/trade/${type}/${asset}`;
+}
+
+// External exchange assets — add more as exchanges support them
+const EXT_ASSETS = {
+  Deribit: ['BTC','ETH','SOL'],
+  OKX:    ['BTC','ETH'],
+  Bybit:  ['BTC','ETH','SOL'],
+};
+// CoinCall: auto-tries BTC,ETH,SOL + any altcoin PT discovers (see COINCALL_ALTS)
+const COINCALL_ALTS = ['ADA','BNB','DOGE','XRP','AVAX','DOT','LINK','UNI','AAVE','NEAR','APT','ARB','OP','SUI','TIA','SEI','JUP','WIF','PEPE','BONK','FLOKI','SHIB','MEME','TON','MATIC','FTM','MANA','SAND','AXS','GALA','RNDR','INJ','TRX','LTC','BCH','ETC','FIL','ATOM','ALGO','ICP','VET'];
 
 // ═══════════════════════════════════════════════════════════════
-// BLACK-SCHOLES
+// BLACK-SCHOLES (compact)
 // ═══════════════════════════════════════════════════════════════
 const phi=x=>{const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911,s=x<0?-1:1,ax=Math.abs(x)/Math.SQRT2,t=1/(1+p*ax),y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-ax*ax);return .5*(1+s*y)};
 const bsP=(S,K,T,r,v,cp)=>{if(T<=1e-6||v<=1e-6)return Math.max(0,cp==='C'?S-K:K-S);const sq=Math.sqrt(T),d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*sq),d2=d1-v*sq;return cp==='C'?S*phi(d1)-K*Math.exp(-r*T)*phi(d2):K*Math.exp(-r*T)*phi(-d2)-S*phi(-d1)};
-const solveIV=(price,S,K,T,r,cp)=>{if(T<=1e-6||price<=0||S<=0)return null;let v=.5,pDv=Infinity;for(let i=0;i<60;i++){const p=bsP(S,K,T,r,v,cp),d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T)),vg=S*Math.sqrt(T)*Math.exp(-d1*d1/2)/2.5066282746;if(vg<1e-10)break;const dv=(p-price)/vg;if(Math.abs(dv)>Math.abs(pDv)*2&&i>5)break;pDv=dv;v-=dv;if(v<=.001)v=.001;if(v>10)v=10;if(Math.abs(dv)<1e-8)break}return(v>.005&&v<9.9)?v:null};
+const solveIV=(price,S,K,T,r,cp)=>{if(T<=1e-6||price<=0||S<=0)return null;let v=.5,pD=Infinity;for(let i=0;i<60;i++){const p=bsP(S,K,T,r,v,cp),d1=(Math.log(S/K)+(r+v*v/2)*T)/(v*Math.sqrt(T)),vg=S*Math.sqrt(T)*Math.exp(-d1*d1/2)/2.5066282746;if(vg<1e-10)break;const dv=(p-price)/vg;if(Math.abs(dv)>Math.abs(pD)*2&&i>5)break;pD=dv;v-=dv;if(v<=.001)v=.001;if(v>10)v=10;if(Math.abs(dv)<1e-8)break}return(v>.005&&v<9.9)?v:null};
 
 // ═══════════════════════════════════════════════════════════════
 // FETCH HELPERS
 // ═══════════════════════════════════════════════════════════════
-async function fj(url,timeoutMs=12000){const t0=performance.now();const ctrl=new AbortController();const tmr=setTimeout(()=>ctrl.abort(),timeoutMs);try{const r=await fetch(url,{signal:ctrl.signal});clearTimeout(tmr);const lat=Math.round(performance.now()-t0);if(!r.ok)throw new Error(`HTTP ${r.status}`);return{ok:true,data:await r.json(),lat}}catch(e){clearTimeout(tmr);return{ok:false,err:e.message,lat:Math.round(performance.now()-t0)}}}
+async function fj(url,timeout=12000){const t0=performance.now();const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),timeout);try{const r=await fetch(url,{signal:ac.signal});clearTimeout(tm);const lat=Math.round(performance.now()-t0);if(!r.ok)throw new Error(`HTTP ${r.status}`);return{ok:true,data:await r.json(),lat}}catch(e){clearTimeout(tm);return{ok:false,err:e.message,lat:Math.round(performance.now()-t0)}}}
 function dTE(d){return Math.max(0,(d.getTime()-Date.now())/864e5)}
 const MO={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
 const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
 // ═══════════════════════════════════════════════════════════════
-// POWERTRADE — fetches ALL assets in one call
+// POWERTRADE — auto-fallback between REST URLs
 // ═══════════════════════════════════════════════════════════════
 function parsePTOpt(sym){const m=sym.match(/^(\w+)-(\d{8})-(\d+)(C|P)$/);if(!m)return null;const[,a,ds,k,cp]=m;const y=parseInt(ds.slice(0,4)),mo=parseInt(ds.slice(4,6))-1,d=parseInt(ds.slice(6,8));return{asset:a,strike:parseInt(k),cp,expiry:`${d}${MN[mo]}${String(y).slice(2)}`,expiryDate:new Date(y,mo,d,8,0,0)}}
+
 async function fetchPT(){
-  const r=await fj(`${PT_API}/v1/market_data/tradeable_entity/all/summary`);
-  if(!r.ok)return{opts:[],perps:[],spots:{},assets:new Set(),ok:false,lat:r.lat,err:r.err};
+  let r = null;
+  // Try each configured REST URL
+  for (const url of CFG.restUrls) {
+    r = await fj(`${url}/v1/market_data/tradeable_entity/all/summary`);
+    if (r.ok) { PT_API = url; break; }
+  }
+  if (!r || !r.ok) return {opts:[],perps:[],spots:{},assets:new Set(),ok:false,lat:r?.lat||0,err:r?.err||'all URLs failed',apiUrl:PT_API};
   const opts=[],perps=[],spots={},assets=new Set();
   for(const t of r.data){
     const bid=t.best_bid?parseFloat(t.best_bid):null,ask=t.best_ask?parseFloat(t.best_ask):null,last=t.last_price?parseFloat(t.last_price):null,idx=t.index_price?parseFloat(t.index_price):null,vol=parseFloat(t.volume)||0,oi=parseFloat(t.open_interest)||0;
@@ -116,7 +138,7 @@ async function fetchPT(){
     else if(t.product_type==='perpetual_future'){const asset=t.symbol.split('-')[0];const mark=last||((bid||0)+(ask||0))/2;const funding=t.funding_rate?parseFloat(t.funding_rate):null;perps.push({ex:'PT',asset,isPerpetual:true,instrument:t.symbol,mark,bid,ask,last,vol24h:vol,oi,spot:idx||0,funding,basis:idx>0?(mark-idx)/idx*100:0});if(idx>0)spots[asset]=idx;assets.add(asset)}
     else if(t.product_type==='index'){const asset=t.symbol.split('-')[0];if(idx>0)spots[asset]=idx;assets.add(asset)}
   }
-  return{opts,perps,spots,assets,ok:true,lat:r.lat,count:r.data.length}}
+  return{opts,perps,spots,assets,ok:true,lat:r.lat,count:r.data.length,apiUrl:PT_API}}
 
 // ═══════════════════════════════════════════════════════════════
 // DERIBIT
@@ -152,20 +174,18 @@ async function fetchBybit(asset){
   return{opts,perps,oOk:oR.ok,fOk:lR.ok,lat:Math.max(oR.lat,lR.lat)}}
 
 // ═══════════════════════════════════════════════════════════════
-// COINCALL — try multiple endpoint patterns, graceful fail
+// COINCALL — 8s timeout, graceful fail, skip silently if 404
 // ═══════════════════════════════════════════════════════════════
 function parseCCI(sym){const m=sym.match(/^(\w+)USD-(\d{1,2})([A-Z]{3})(\d{2})-(\d+)-(C|P)$/);if(!m)return null;const[,a,day,mon,yr,k,cp]=m;const y=2000+parseInt(yr),mo=MO[mon];if(mo===undefined)return null;return{asset:a,strike:parseInt(k),cp,expiry:`${day}${mon}${yr}`,expiryDate:new Date(y,mo,parseInt(day),8,0,0)}}
 async function fetchCoinCall(asset){
   const idx=asset+'USD';
-  // Try v1 chain endpoint, fall back to instruments
-  let oR=await fj(`https://api.coincall.com/open/option/getOptionChain/v1/${idx}`,8000);
-  if(!oR.ok) oR=await fj(`https://api.coincall.com/open/option/get/v1/instruments?index=${idx}`,8000);
+  const oR=await fj(`https://api.coincall.com/open/option/getOptionChain/v1/${idx}`,8000);
   const fR=await fj(`https://api.coincall.com/open/futures/market/getSymbolInfo/v1`,8000);
   const frR=await fj(`https://api.coincall.com/open/public/fundingRate/v1/${idx}`,8000);
   const opts=[],perps=[];let spot=0;
-  if(oR.ok&&oR.data?.data){const rows=Array.isArray(oR.data.data)?oR.data.data:[oR.data.data];for(const row of rows){for(const side of['callOption','putOption']){const o=row[side];if(!o||!o.symbol)continue;const p=parseCCI(o.symbol);if(!p)continue;const S=o.underlyingPrice||0;if(!S)continue;if(S>0)spot=S;const bid=o.bid||0,ask=o.ask||0,mark=o.markPrice||0;const mid=bid>0&&ask>0?(bid+ask)/2:(mark||0);const sprd=mid>0&&bid>0&&ask>0?((ask-bid)/mid)*100:null;opts.push({ex:'CoinCall',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:o.markIv?o.markIv/100:null,sprd,vol24h:o.volume||0,oi:o.openInterest||0,raw:o.symbol})}}}
+  if(oR.ok&&oR.data?.data){const rows=Array.isArray(oR.data.data)?oR.data.data:[oR.data.data];for(const row of rows){for(const side of['callOption','putOption']){const o=row[side];if(!o||!o.symbol)continue;const p=parseCCI(o.symbol);if(!p)continue;const S=o.underlyingPrice||0;if(S>0)spot=S;const bid=o.bid||0,ask=o.ask||0,mark=o.markPrice||0;const mid=bid>0&&ask>0?(bid+ask)/2:(mark||0);const sprd=mid>0&&bid>0&&ask>0?((ask-bid)/mid)*100:null;opts.push({ex:'CoinCall',asset:p.asset,strike:p.strike,expiry:p.expiry,expiryDate:p.expiryDate,cp:p.cp,T:dTE(p.expiryDate)/365,bid,ask,mid,spot:S,markIv:o.markIv?o.markIv/100:null,sprd,vol24h:o.volume||0,oi:o.openInterest||0,raw:o.symbol})}}}
   if(fR.ok&&fR.data?.data){for(const f of(Array.isArray(fR.data.data)?fR.data.data:[fR.data.data])){if(!f.symbol||!f.symbol.includes(asset))continue;const mk=parseFloat(f.markPrice)||parseFloat(f.price)||0;const S=parseFloat(f.indexPrice)||mk;if(S>0)spot=S;const funding=frR.ok&&frR.data?.data?.fundingRate!=null?parseFloat(frR.data.data.fundingRate):null;perps.push({ex:'CoinCall',asset,isPerpetual:true,instrument:f.displayName||`${asset}-PERP`,mark:mk,spot:S,funding,basis:S>0?(mk-S)/S*100:0})}}
-  return{opts,perps,oOk:oR.ok,fOk:fR.ok,lat:Math.max(oR.lat,fR.lat||0,frR.lat||0),spot,ccErr:!oR.ok?oR.err:null}}
+  return{opts,perps,oOk:oR.ok||opts.length>0,fOk:fR.ok,lat:Math.max(oR.lat,fR.lat||0,frR.lat||0),spot,ccErr:!oR.ok?oR.err:null}}
 
 // ═══════════════════════════════════════════════════════════════
 // STATE
@@ -174,7 +194,7 @@ const FEES={PT:{m:.0003,t:.0005},Deribit:{m:.0002,t:.0003},OKX:{m:.0002,t:.0003}
 const SLIP=.005;
 const catCol={PT_WIDE:'org',PT_STALE:'red',PT_CHEAP:'grn',PT_RICH:'prp',MKT_IV:'blu',PERP_ARB:'grn',FUND_ARB:'blu'};
 const catLbl={PT_WIDE:'WIDE',PT_STALE:'STALE',PT_CHEAP:'CHEAP',PT_RICH:'RICH',MKT_IV:'IV ARB',PERP_ARB:'PERP ARB',FUND_ARB:'FUNDING'};
-const G={tab:'quotehealth',loading:true,tick:0,live:true,openA:null,fAsset:'ALL',fCat:'ALL',fSev:'ALL',fProf:false,hAsset:'ALL',hExpiry:'ALL',hFilter:'ALL',qhAsset:'ALL',compAsset:'BTC',compExpiry:null,
+const G={tab:'quotehealth',loading:true,tick:0,live:true,openA:null,fAsset:'ALL',fCat:'ALL',fSev:'ALL',fProf:false,qhAsset:'ALL',
   th:{ptVsMkt:20,ivArb:8,perpBps:5,fundBps:6,minExtVol:50000,minExtOI:5,blWarn:1.5,blCrit:3.0},
   refreshMs:25000,
   conn:{PT:{ok:false,n:0,lat:0},Deribit:{ok:false,n:0,lat:0},OKX:{ok:false,n:0,lat:0},Bybit:{ok:false,n:0,lat:0},CoinCall:{ok:false,n:0,lat:0}},
@@ -183,64 +203,58 @@ const G={tab:'quotehealth',loading:true,tick:0,live:true,openA:null,fAsset:'ALL'
 let timer=null,_refreshing=false;
 
 // ═══════════════════════════════════════════════════════════════
-// BASELINE SYSTEM (Phase 1-3)
+// BASELINE
 // ═══════════════════════════════════════════════════════════════
-function getBands(o){const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:0.5;const monoBand=mono<.05?'ATM':mono<.15?'NEAR':'DEEP';const dte=o.T*365;const dteBand=dte<1?'0D':dte<3?'1-3D':dte<7?'3-7D':dte<30?'7-30D':dte<90?'30-90D':'90D+';return{monoBand,dteBand,key:`${o.asset}-${monoBand}-${dteBand}`}}
-function captureBaseline(){const items=G.ptItems;if(!items||!items.length)return null;const bl={timestamp:Date.now(),buckets:{},options:{},quotedCount:0,totalCount:items.length};for(const o of items){const{key}=getBands(o);if(!bl.buckets[key])bl.buckets[key]={spreads:[],quoted:0,total:0};const b=bl.buckets[key];b.total++;if(o.status==='QUOTED'){b.quoted++;b.spreads.push(o.sprd)}}for(const b of Object.values(bl.buckets)){b.spreads.sort((a,c)=>a-c);b.median=b.spreads[Math.floor(b.spreads.length/2)]||null;b.p75=b.spreads[Math.floor(b.spreads.length*0.75)]||null;b.p95=b.spreads[Math.floor(b.spreads.length*0.95)]||null;b.quotedPct=b.total>0?Math.round(b.quoted/b.total*100):0}for(const o of items){bl.options[o.raw]={status:o.status,sprd:o.sprd,mid:o.mid};if(o.status==='QUOTED'||o.status==='WIDE')bl.quotedCount++}G.warmup=true;setTimeout(()=>{G.warmup=false},5*60*1000);return bl}
-function fallbackTh(o){const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:.2;const dte=o.T*365;if(dte<1)return 60;if(dte<3)return 45;if(dte<7)return mono<.05?10:mono<.15?18:38;return mono<.05?12:mono<.15?20:35}
-function dynSprdTh(o){const bl=G.baseline;if(!bl)return fallbackTh(o);const{key}=getBands(o);const b=bl.buckets[key];if(!b||!b.p95)return fallbackTh(o);const utcH=new Date().getUTCHours();const lm=(utcH>=0&&utcH<8)?1.3:1.0;return b.p95*G.th.blWarn*lm}
+function getBands(o){const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:.5;const mb=mono<.05?'ATM':mono<.15?'NEAR':'DEEP';const dte=o.T*365;const db=dte<1?'0D':dte<3?'1-3D':dte<7?'3-7D':dte<30?'7-30D':dte<90?'30-90D':'90D+';return{key:`${o.asset}-${mb}-${db}`}}
+function captureBaseline(){const items=G.ptItems;if(!items.length)return null;const bl={timestamp:Date.now(),buckets:{},options:{},quotedCount:0,totalCount:items.length};for(const o of items){const{key}=getBands(o);if(!bl.buckets[key])bl.buckets[key]={spreads:[],quoted:0,total:0};const b=bl.buckets[key];b.total++;if(o.status==='QUOTED'){b.quoted++;b.spreads.push(o.sprd)}}for(const b of Object.values(bl.buckets)){b.spreads.sort((a,c)=>a-c);b.p95=b.spreads[Math.floor(b.spreads.length*.95)]||null;b.quotedPct=b.total>0?Math.round(b.quoted/b.total*100):0}for(const o of items){bl.options[o.raw]={status:o.status,sprd:o.sprd};if(o.status==='QUOTED'||o.status==='WIDE')bl.quotedCount++}G.warmup=true;setTimeout(()=>{G.warmup=false},300000);return bl}
+function fallbackTh(o){const S=o.spot||0;const mono=S>0?Math.abs(o.strike-S)/S:.2;const dte=o.T*365;if(dte<1)return 60;if(dte<3)return 45;return mono<.05?12:mono<.15?20:35}
+function dynSprdTh(o){const bl=G.baseline;if(!bl)return fallbackTh(o);const{key}=getBands(o);const b=bl.buckets[key];if(!b||!b.p95)return fallbackTh(o);const lm=new Date().getUTCHours()<8?1.3:1;return b.p95*G.th.blWarn*lm}
 function updateSpotHist(){const now=Date.now();for(const[a,p] of Object.entries(G.spots)){if(!G.spotHist[a])G.spotHist[a]=[];G.spotHist[a].push({p,t:now});G.spotHist[a]=G.spotHist[a].filter(s=>now-s.t<600000)}}
-function spotMove5m(asset){const h=G.spotHist[asset];if(!h||h.length<2)return 0;const now=Date.now();const r=h.filter(s=>now-s.t<300000);if(!r.length)return 0;return r[0].p>0?Math.abs(r[r.length-1].p-r[0].p)/r[0].p:0}
-function shouldSuppress(alert){if(G.warmup&&['PT_WIDE','PT_STALE'].includes(alert.cat))return'warmup';const bl=G.baseline;if(bl&&['PT_WIDE','PT_STALE'].includes(alert.cat)){const bo=bl.options[alert.raw];if(!bo||bo.status==='EMPTY')return'baseline-empty'}if(['PT_WIDE','PT_STALE'].includes(alert.cat)&&spotMove5m(alert.asset)>0.03)return'spot-move';return false}
-function calcBlHealth(){const bl=G.baseline;const items=G.ptItems;if(!bl||!items.length)return null;let matching=0,blQuoted=0,coveredCount=0,totalDrift=0,driftN=0;for(const o of items){const bo=bl.options[o.raw];if(!bo||bo.status==='EMPTY')continue;blQuoted++;const live=o.status==='QUOTED'||o.status==='WIDE';if(!live)continue;coveredCount++;const{key}=getBands(o);const b=bl.buckets[key];const bs=b?.median||bo.sprd||50;if(o.sprd!=null&&o.sprd<=bs*2)matching++;if(bo.sprd>0&&o.sprd!=null){totalDrift+=o.sprd/bo.sprd;driftN++}}return{quoterHealth:blQuoted>0?Math.round(matching/blQuoted*100):0,coverage:blQuoted>0?Math.round(coveredCount/blQuoted*100):0,spreadDrift:driftN>0?totalDrift/driftN:1,blQuoted,matching,coveredCount}}
+function spotMove5m(a){const h=G.spotHist[a];if(!h||h.length<2)return 0;const r=h.filter(s=>Date.now()-s.t<300000);if(!r.length)return 0;return r[0].p>0?Math.abs(r[r.length-1].p-r[0].p)/r[0].p:0}
+function shouldSuppress(al){if(G.warmup&&['PT_WIDE','PT_STALE'].includes(al.cat))return true;const bl=G.baseline;if(bl&&['PT_WIDE','PT_STALE'].includes(al.cat)){const bo=bl.options[al.raw];if(!bo||bo.status==='EMPTY')return true}if(['PT_WIDE','PT_STALE'].includes(al.cat)&&spotMove5m(al.asset)>.03)return true;return false}
+function calcBlHealth(){const bl=G.baseline,items=G.ptItems;if(!bl||!items.length)return null;let m=0,bq=0,cv=0,td=0,dn=0;for(const o of items){const bo=bl.options[o.raw];if(!bo||bo.status==='EMPTY')continue;bq++;if(o.status!=='QUOTED'&&o.status!=='WIDE')continue;cv++;const{key}=getBands(o);const b=bl.buckets[key];const bs=b?.p95||bo.sprd||50;if(o.sprd!=null&&o.sprd<=bs*2)m++;if(bo.sprd>0&&o.sprd!=null){td+=o.sprd/bo.sprd;dn++}}return{quoterHealth:bq>0?Math.round(m/bq*100):0,coverage:bq>0?Math.round(cv/bq*100):0,spreadDrift:dn>0?td/dn:1,blQuoted:bq,matching:m}}
 
 // ═══════════════════════════════════════════════════════════════
 // ANALYSIS + DETECTION
 // ═══════════════════════════════════════════════════════════════
-function analyzeHealth(ptOpts){return ptOpts.map(o=>{const hasBid=o.bid!=null&&o.bid>0,hasAsk=o.ask!=null&&o.ask>0;const th=dynSprdTh(o);let status='EMPTY';if(hasBid&&hasAsk)status=o.sprd!=null&&o.sprd>=th?'WIDE':'QUOTED';else if(hasBid||hasAsk)status='ONE_SIDED';let iv=null;if(o.mid>0&&o.spot>0&&o.T>1e-6)iv=solveIV(o.mid,o.spot,o.strike,o.T,0,o.cp);const bl=G.baseline;let blDev=null,blWasQuoted=false;if(bl){const bo=bl.options[o.raw];if(bo){blWasQuoted=bo.status==='QUOTED'||bo.status==='WIDE';if(blWasQuoted&&(status==='EMPTY'||status==='ONE_SIDED'))blDev='PULLED';else if(!blWasQuoted&&status==='QUOTED')blDev='NEW';else if(blWasQuoted&&o.sprd!=null&&bo.sprd!=null&&bo.sprd>0){const ratio=o.sprd/bo.sprd;if(ratio>G.th.blCrit)blDev='BLOWN';else if(ratio>G.th.blWarn)blDev='DRIFTED'}}}return{...o,hasBid,hasAsk,status,dynTh:th,iv,blDev,blWasQuoted}})}
+function analyzeHealth(ptOpts){return ptOpts.map(o=>{const hb=o.bid!=null&&o.bid>0,ha=o.ask!=null&&o.ask>0;const th=dynSprdTh(o);let st='EMPTY';if(hb&&ha)st=o.sprd!=null&&o.sprd>=th?'WIDE':'QUOTED';else if(hb||ha)st='ONE_SIDED';let iv=null;if(o.mid>0&&o.spot>0&&o.T>1e-6)iv=solveIV(o.mid,o.spot,o.strike,o.T,0,o.cp);const bl=G.baseline;let bd=null,bw=false;if(bl){const bo=bl.options[o.raw];if(bo){bw=bo.status==='QUOTED'||bo.status==='WIDE';if(bw&&(st==='EMPTY'||st==='ONE_SIDED'))bd='PULLED';else if(!bw&&st==='QUOTED')bd='NEW';else if(bw&&o.sprd!=null&&bo.sprd>0){const r=o.sprd/bo.sprd;if(r>G.th.blCrit)bd='BLOWN';else if(r>G.th.blWarn)bd='DRIFTED'}}}return{...o,hasBid:hb,hasAsk:ha,status:st,dynTh:th,iv,blDev:bd,blWasQuoted:bw}})}
 
-function detect(ptItems,ptPerps,mktOpts,mktPerps,th){const al=[];let suppressed=0;const bl=G.baseline;
-for(const o of ptItems){if(o.blDev==='PULLED'){const a={cat:'PT_STALE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,msg:`QUOTE PULLED — was live, now ${o.status}`,confidence:85};const sup=shouldSuppress(a);if(sup){suppressed++;continue}al.push(a)}
-else if(o.blDev==='BLOWN'){const bs=bl?.options[o.raw]?.sprd||0;al.push({cat:'PT_WIDE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,msg:`Spread BLOWN ${o.sprd?.toFixed(1)}% (baseline ${bs.toFixed(1)}%)`,confidence:75})}
-else if(o.blDev==='DRIFTED'){const bs=bl?.options[o.raw]?.sprd||0;const a={cat:'PT_WIDE',sev:'warning',asset:o.asset,title:o.raw,raw:o.raw,msg:`Spread drifted ${o.sprd?.toFixed(1)}% (baseline ${bs.toFixed(1)}%)`,confidence:50};const sup=shouldSuppress(a);if(sup){suppressed++;continue}al.push(a)}
-const hrs=o.T*365*24;if(hrs>0&&hrs<=24&&o.status!=='EMPTY')al.push({cat:'PT_STALE',sev:'critical',asset:o.asset,title:`⏱ ${o.raw}`,raw:o.raw,msg:`EXPIRING ${hrs.toFixed(1)}h | OI: ${o.oi}`,confidence:90})}
+function detect(ptItems,ptPerps,mktOpts,mktPerps,th){const al=[];let supp=0;const bl=G.baseline;
+for(const o of ptItems){if(o.blDev==='PULLED'){const a={cat:'PT_STALE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,msg:`PULLED — was live, now ${o.status}`,confidence:85};if(shouldSuppress(a)){supp++;continue}al.push(a)}
+else if(o.blDev==='BLOWN'){al.push({cat:'PT_WIDE',sev:'critical',asset:o.asset,title:o.raw,raw:o.raw,msg:`BLOWN ${o.sprd?.toFixed(1)}% (bl ${bl?.options[o.raw]?.sprd?.toFixed(1)||'?'}%)`,confidence:75})}
+else if(o.blDev==='DRIFTED'){const a={cat:'PT_WIDE',sev:'warning',asset:o.asset,title:o.raw,raw:o.raw,msg:`Drifted ${o.sprd?.toFixed(1)}% (bl ${bl?.options[o.raw]?.sprd?.toFixed(1)||'?'}%)`,confidence:50};if(shouldSuppress(a)){supp++;continue}al.push(a)}}
 const mktByK={};for(const o of mktOpts){if(o.T<2/365||o.mid<=0)continue;const k=`${o.asset}-${o.strike}-${o.expiry}-${o.cp}`;if(!mktByK[k])mktByK[k]=[];mktByK[k].push(o)}
 const isLiq=m=>m.bid>0&&m.ask>0&&m.vol24h>=th.minExtVol&&m.oi>=th.minExtOI;
-for(const pt of ptItems){if(pt.mid<=0||pt.T<2/365||pt.mid<1)continue;const k=`${pt.asset}-${pt.strike}-${pt.expiry}-${pt.cp}`;const mkts=mktByK[k];if(!mkts)continue;const liq=mkts.filter(isLiq);if(!liq.length)continue;
-if(pt.iv){for(const m of liq){const mIv=m.markIv;if(!mIv)continue;const ivD=(pt.iv-mIv)*100;if(Math.abs(ivD)>=th.ivArb)al.push({cat:'MKT_IV',sev:Math.abs(ivD)>=th.ivArb*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,msg:`PT IV ${(pt.iv*100).toFixed(1)}% vs ${m.ex} ${(mIv*100).toFixed(1)}% (Δ${ivD.toFixed(1)})`,confidence:60})}}
-const mktAvg=liq.reduce((a,b)=>a+b.mid,0)/liq.length;const pctD=((pt.mid-mktAvg)/mktAvg)*100;if(Math.abs(pctD)<th.ptVsMkt)continue;const cheap=pctD<0;
-if(cheap&&pt.ask>0){const best=liq.reduce((b,m)=>m.bid>(b?.bid||0)?m:b,null);if(best?.bid>0){const net=best.bid*(1-SLIP)-pt.ask*(1+SLIP)-pt.ask*FEES.PT.t-best.bid*(FEES[best.ex]?.t||.0005);al.push({cat:'PT_CHEAP',sev:Math.abs(pctD)>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,msg:`PT $${pt.mid.toFixed(2)} vs mkt $${mktAvg.toFixed(2)} (${pctD.toFixed(1)}%) → BUY PT SELL ${best.ex} [net $${net.toFixed(2)}]`,net,profitable:net>0,confidence:60})}}
-else if(!cheap&&pt.bid>0){const best=liq.filter(m=>m.ask>0).reduce((b,m)=>!b||m.ask<b.ask?m:b,null);if(best?.ask>0){const net=pt.bid*(1-SLIP)-best.ask*(1+SLIP)-pt.bid*FEES.PT.t-best.ask*(FEES[best.ex]?.t||.0005);al.push({cat:'PT_RICH',sev:Math.abs(pctD)>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,msg:`PT $${pt.mid.toFixed(2)} vs mkt $${mktAvg.toFixed(2)} (+${pctD.toFixed(1)}%) → SELL PT BUY ${best.ex} [net $${net.toFixed(2)}]`,net,profitable:net>0,confidence:60})}}}
+for(const pt of ptItems){if(pt.mid<=0||pt.T<2/365||pt.mid<1)continue;const k=`${pt.asset}-${pt.strike}-${pt.expiry}-${pt.cp}`;const liq=(mktByK[k]||[]).filter(isLiq);if(!liq.length)continue;const avg=liq.reduce((a,b)=>a+b.mid,0)/liq.length;const pD=((pt.mid-avg)/avg)*100;if(Math.abs(pD)<th.ptVsMkt)continue;
+if(pD<0&&pt.ask>0){const best=liq.reduce((b,m)=>m.bid>(b?.bid||0)?m:b,null);if(best?.bid>0){const net=best.bid*(1-SLIP)-pt.ask*(1+SLIP)-pt.ask*FEES.PT.t-best.bid*(FEES[best.ex]?.t||.0005);al.push({cat:'PT_CHEAP',sev:Math.abs(pD)>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,msg:`PT $${pt.mid.toFixed(2)} vs mkt $${avg.toFixed(2)} (${pD.toFixed(1)}%) → BUY PT SELL ${best.ex} [net $${net.toFixed(2)}]`,net,profitable:net>0,confidence:60})}}
+else if(pD>0&&pt.bid>0){const best=liq.filter(m=>m.ask>0).reduce((b,m)=>!b||m.ask<b.ask?m:b,null);if(best?.ask>0){const net=pt.bid*(1-SLIP)-best.ask*(1+SLIP)-pt.bid*FEES.PT.t-best.ask*(FEES[best.ex]?.t||.0005);al.push({cat:'PT_RICH',sev:Math.abs(pD)>=th.ptVsMkt*2?'critical':'warning',asset:pt.asset,title:pt.raw,raw:pt.raw,msg:`PT $${pt.mid.toFixed(2)} vs mkt $${avg.toFixed(2)} (+${pD.toFixed(1)}%) → SELL PT BUY ${best.ex} [net $${net.toFixed(2)}]`,net,profitable:net>0,confidence:60})}}}
 const pBA={};for(const p of[...ptPerps,...mktPerps])if(p.isPerpetual){if(!pBA[p.asset])pBA[p.asset]={};pBA[p.asset][p.ex]=p}
-for(const[asset,em] of Object.entries(pBA)){const pt=em.PT;if(!pt)continue;for(const[ex,mp] of Object.entries(em)){if(ex==='PT')continue;const bdBps=Math.abs(pt.basis-mp.basis)*100;if(bdBps>=th.perpBps){const net=Math.abs(pt.mark-mp.mark)-(pt.mark+mp.mark)/2*(FEES.PT.t+(FEES[ex]?.t||.0005));al.push({cat:'PERP_ARB',sev:bdBps>th.perpBps*2?'critical':'warning',asset,title:`${asset} PERP PT↔${ex}`,raw:`${asset}-PERP`,msg:`Basis Δ ${bdBps.toFixed(1)}bps | PT $${pt.mark.toFixed(2)} vs ${ex} $${mp.mark.toFixed(2)} [net $${net.toFixed(2)}]`,net,profitable:net>0,confidence:70})}
-if(pt.funding!=null&&mp.funding!=null){const fd=Math.abs(pt.funding-mp.funding)*10000;if(fd>=th.fundBps)al.push({cat:'FUND_ARB',sev:fd>th.fundBps*2?'critical':'warning',asset,title:`${asset} FUND PT↔${ex}`,raw:`${asset}-FUND`,msg:`Funding Δ ${fd.toFixed(2)}bps | PT ${(pt.funding*10000).toFixed(2)}bps vs ${ex} ${(mp.funding*10000).toFixed(2)}bps`,confidence:60})}}}
-G.suppressed=suppressed;return al.sort((a,b)=>(a.sev==='critical'?0:1)-(b.sev==='critical'?0:1)||b.confidence-a.confidence)}
+for(const[asset,em] of Object.entries(pBA)){const pt=em.PT;if(!pt)continue;for(const[ex,mp] of Object.entries(em)){if(ex==='PT')continue;const bd=Math.abs(pt.basis-mp.basis)*100;if(bd>=th.perpBps)al.push({cat:'PERP_ARB',sev:bd>th.perpBps*2?'critical':'warning',asset,title:`${asset} PERP PT↔${ex}`,raw:`${asset}-PERP`,msg:`Basis Δ${bd.toFixed(1)}bps | PT $${pt.mark.toFixed(2)} vs ${ex} $${mp.mark.toFixed(2)}`,confidence:70});
+if(pt.funding!=null&&mp.funding!=null){const fd=Math.abs(pt.funding-mp.funding)*10000;if(fd>=th.fundBps)al.push({cat:'FUND_ARB',sev:fd>th.fundBps*2?'critical':'warning',asset,title:`${asset} FUND PT↔${ex}`,raw:`${asset}-FUND`,msg:`Funding Δ${fd.toFixed(2)}bps | PT ${(pt.funding*10000).toFixed(2)} vs ${ex} ${(mp.funding*10000).toFixed(2)}`,confidence:60})}}}
+G.suppressed=supp;return al.sort((a,b)=>(a.sev==='critical'?0:1)-(b.sev==='critical'?0:1)||b.confidence-a.confidence)}
 
 // ═══════════════════════════════════════════════════════════════
-// REFRESH — dynamic asset fetching
+// REFRESH
 // ═══════════════════════════════════════════════════════════════
 async function refresh(){if(_refreshing)return;_refreshing=true;G.loading=true;render();const errs=[];
 for(const k of Object.keys(G.conn))G.conn[k]={ok:false,n:0,lat:0};
-// 1. Fetch PT first (discovers all assets)
 const ptR=await fetchPT();
-if(ptR.ok){G.ptOpts=ptR.opts;G.ptPerps=ptR.perps;Object.assign(G.spots,ptR.spots);G.ptAssets=ptR.assets;G.conn.PT={ok:true,n:ptR.count,lat:ptR.lat}}else{errs.push(`PT: ${ptR.err}`);G.ptOpts=[];G.ptPerps=[]}
-// 2. Build external fetch list dynamically
-const fetches=[];const fetchMeta=[];
-for(const asset of EXT_ASSETS.Deribit){fetches.push(fetchDeribit(asset));fetchMeta.push({ex:'Deribit',asset})}
-for(const asset of EXT_ASSETS.OKX){fetches.push(fetchOKX(asset));fetchMeta.push({ex:'OKX',asset})}
-for(const asset of EXT_ASSETS.Bybit){fetches.push(fetchBybit(asset));fetchMeta.push({ex:'Bybit',asset})}
-// CoinCall: try all PT assets that CoinCall might support
-const ccAssets=['BTC','ETH','SOL',...[...G.ptAssets].filter(a=>!['BTC','ETH','SOL'].includes(a)&&['ADA','BNB','DOGE','XRP','MATIC','AVAX','DOT','LINK','UNI','AAVE','NEAR','APT','ARB','OP','SUI','TIA','SEI','JUP','W','WIF','PEPE','BONK','FLOKI','MEME','SHIB'].includes(a))];
-for(const asset of ccAssets){fetches.push(fetchCoinCall(asset));fetchMeta.push({ex:'CoinCall',asset})}
-const results=await Promise.allSettled(fetches);let mo=[],mp=[];
-results.forEach((r,i)=>{const{ex,asset}=fetchMeta[i];if(r.status==='fulfilled'&&r.value){const d=r.value;if(d.oOk){mo=mo.concat(d.opts);G.conn[ex].ok=true;G.conn[ex].n+=d.opts.length;G.conn[ex].lat=Math.max(G.conn[ex].lat,d.lat||0)}if(d.fOk)mp=mp.concat(d.perps);if(d.ccErr)errs.push(`CoinCall ${asset}: ${d.ccErr}`)}else{errs.push(`${ex} ${asset}: ${r.reason||'failed'}`)}});
+if(ptR.ok){G.ptOpts=ptR.opts;G.ptPerps=ptR.perps;Object.assign(G.spots,ptR.spots);G.ptAssets=ptR.assets;G.conn.PT={ok:true,n:ptR.count,lat:ptR.lat}}else{errs.push(`PT: ${ptR.err} (tried ${CFG.restUrls.join(', ')})`);G.ptOpts=[];G.ptPerps=[]}
+const fetches=[],meta=[];
+for(const a of EXT_ASSETS.Deribit){fetches.push(fetchDeribit(a));meta.push({ex:'Deribit',a})}
+for(const a of EXT_ASSETS.OKX){fetches.push(fetchOKX(a));meta.push({ex:'OKX',a})}
+for(const a of EXT_ASSETS.Bybit){fetches.push(fetchBybit(a));meta.push({ex:'Bybit',a})}
+const ccA=['BTC','ETH','SOL',...[...G.ptAssets].filter(a=>!['BTC','ETH','SOL'].includes(a)&&COINCALL_ALTS.includes(a))];
+for(const a of ccA){fetches.push(fetchCoinCall(a));meta.push({ex:'CoinCall',a})}
+const res=await Promise.allSettled(fetches);let mo=[],mp=[];
+res.forEach((r,i)=>{const{ex,a}=meta[i];if(r.status==='fulfilled'&&r.value){const d=r.value;if(d.oOk){mo=mo.concat(d.opts);G.conn[ex].ok=true;G.conn[ex].n+=d.opts.length;G.conn[ex].lat=Math.max(G.conn[ex].lat,d.lat||0)}if(d.fOk)mp=mp.concat(d.perps);if(d.ccErr&&!d.ccErr.includes('aborted'))errs.push(`CoinCall ${a}: ${d.ccErr}`)}else errs.push(`${ex} ${a}: ${r.reason||'failed'}`)});
 G.mktOpts=mo;G.mktPerps=mp;updateSpotHist();
 G.ptItems=analyzeHealth(G.ptOpts);
 if(!G.baseline&&G.ptItems.length>0){G.baseline=captureBaseline();G.ptItems=analyzeHealth(G.ptOpts)}
 else if(G.autoBlH>0&&G.baseline&&(Date.now()-G.baseline.timestamp)>G.autoBlH*3600000&&G.ptItems.length>0){G.baseline=captureBaseline();G.ptItems=analyzeHealth(G.ptOpts)}
-const newAl=detect(G.ptItems,G.ptPerps,mo,mp,G.th);const prevMap=new Map(G.alerts.map(a=>[a._key,a]));const now=Date.now();
-for(const a of newAl){a._key=(a.title+a.cat).replace(/\W/g,'_');const prev=prevMap.get(a._key);a.persistCount=prev?(prev.persistCount||1)+1:1;a.firstSeen=prev?.firstSeen||now;a.isNew=!prev}
-G.alerts=newAl;G.errors=errs;G.loading=false;G.lastUp=new Date();G.tick++;_refreshing=false;render()}
+const na=detect(G.ptItems,G.ptPerps,mo,mp,G.th);const pm=new Map(G.alerts.map(a=>[a._key,a]));
+for(const a of na){a._key=(a.title+a.cat).replace(/\W/g,'_');const p=pm.get(a._key);a.persistCount=p?(p.persistCount||1)+1:1;a.isNew=!p}
+G.alerts=na;G.errors=errs;G.loading=false;G.lastUp=new Date();G.tick++;_refreshing=false;render()}
 
 // ═══════════════════════════════════════════════════════════════
 // RENDER HELPERS
@@ -250,43 +264,38 @@ const ago=ts=>{const s=Math.floor((Date.now()-ts)/1000);return s<60?`${s}s ago`:
 function exportCSV(){const rows=[['Time','Sev','Cat','Asset','Title','Msg']];for(const a of G.alerts)rows.push([G.lastUp?.toISOString()||'',a.sev,a.cat,a.asset,a.title,`"${(a.msg||'').replace(/"/g,"'")}"`]);const b=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});const u=URL.createObjectURL(b);const el=document.createElement('a');el.href=u;el.download=`pt-police-${Date.now()}.csv`;el.click();URL.revokeObjectURL(u)}
 
 // ═══════════════════════════════════════════════════════════════
-// QUOTE HEALTH TAB — the new visual tab
+// QUOTE HEALTH TAB
 // ═══════════════════════════════════════════════════════════════
-function rQuoteHealth(){const items=G.ptItems;if(!items.length)return`<div class="empty">No PT data yet${ENV==='testnet'?' — testnet may have limited instruments':''}</div>`;
-const {qhAsset}=G;const assets=[...new Set(items.map(o=>o.asset))].sort((a,b)=>{const na=items.filter(o=>o.asset===a).length,nb=items.filter(o=>o.asset===b).length;return nb-na});
-// Summary KPIs
+function rQH(){const items=G.ptItems;if(!items.length)return`<div class="empty">No PT data${ENV==='testnet'?' — waiting for testnet response':''}<br><span class="dim">Tried: ${CFG.restUrls.join(', ')}</span></div>`;
+const{qhAsset}=G;const assets=[...new Set(items.map(o=>o.asset))].sort((a,b)=>items.filter(o=>o.asset===b).length-items.filter(o=>o.asset===a).length);
 const tot=items.length,q=items.filter(o=>o.status==='QUOTED').length,w=items.filter(o=>o.status==='WIDE').length,os=items.filter(o=>o.status==='ONE_SIDED').length,em=items.filter(o=>o.status==='EMPTY').length;
-const qPct=tot>0?Math.round(q/tot*100):0;const livePct=tot>0?Math.round((q+w+os)/tot*100):0;
-let h=`<div class="qh-legend"><span><span class="qh-leg-dot qh-q"></span>Quoted</span><span><span class="qh-leg-dot qh-w"></span>Wide</span><span><span class="qh-leg-dot qh-o"></span>One-sided</span><span><span class="qh-leg-dot qh-e"></span>Empty</span></div>`;
-h+=`<div class="qh-summary"><div class="qh-sum-card"><div class="qh-sum-n" style="color:var(--wh)">${$n(tot)}</div><div class="qh-sum-l">Total Options</div></div><div class="qh-sum-card"><div class="qh-sum-n" style="color:var(--grn)">${q}</div><div class="qh-sum-l">Quoted</div></div><div class="qh-sum-card"><div class="qh-sum-n" style="color:var(--org)">${w+os}</div><div class="qh-sum-l">Wide / 1-sided</div></div><div class="qh-sum-card"><div class="qh-sum-n" style="color:var(--red)">${em}</div><div class="qh-sum-l">Empty</div></div><div class="qh-sum-card"><div class="qh-sum-n" style="color:${qPct>50?'var(--grn)':qPct>10?'var(--org)':'var(--red)'}">${qPct}%</div><div class="qh-sum-l">Quoted Rate</div></div><div class="qh-sum-card"><div class="qh-sum-n" style="color:${livePct>50?'var(--grn)':'var(--org)'}">${livePct}%</div><div class="qh-sum-l">Any Quote</div></div></div>`;
-// Filter bar
+const qr=tot?Math.round(q/tot*100):0;const lr=tot?Math.round((q+w+os)/tot*100):0;
+let h=`<div class="qh-legend"><span><span class="qh-ld qh-q"></span>Quoted</span><span><span class="qh-ld qh-w"></span>Wide</span><span><span class="qh-ld qh-o"></span>1-sided</span><span><span class="qh-ld qh-e"></span>Empty</span><span style="margin-left:auto"><a href="${CFG.webBase}/en/trade/options/BTC" target="_blank" class="pt-link">🔗 Open ${CFG.label} UI</a></span></div>`;
+h+=`<div class="qh-sum"><div class="qh-sk"><div class="qh-sn" style="color:var(--wh)">${$n(tot)}</div><div class="qh-sl">Total Opts</div></div><div class="qh-sk"><div class="qh-sn" style="color:var(--grn)">${q}</div><div class="qh-sl">Quoted</div></div><div class="qh-sk"><div class="qh-sn" style="color:var(--org)">${w+os}</div><div class="qh-sl">Wide/1-side</div></div><div class="qh-sk"><div class="qh-sn" style="color:var(--red)">${em}</div><div class="qh-sl">Empty</div></div><div class="qh-sk"><div class="qh-sn" style="color:${qr>50?'var(--grn)':qr>10?'var(--org)':'var(--red)'}">${qr}%</div><div class="qh-sl">Quote Rate</div></div><div class="qh-sk"><div class="qh-sn" style="color:${lr>50?'var(--grn)':'var(--org)'}">${lr}%</div><div class="qh-sl">Any Quote</div></div></div>`;
 h+=`<div class="filters">${['ALL',...assets].map(a=>`<button class="btn${qhAsset===a?' btn-a':''}" onclick="G.qhAsset='${a}';render()">${a}${a!=='ALL'?` <span class="dim">(${items.filter(o=>o.asset===a).length})</span>`:''}</button>`).join('')}</div>`;
-// Per-asset cards
-const showAssets=qhAsset==='ALL'?assets:[qhAsset];
+const show=qhAsset==='ALL'?assets:[qhAsset];
 h+=`<div class="qh-grid">`;
-for(const asset of showAssets){const ai=items.filter(o=>o.asset===asset);const aq=ai.filter(o=>o.status==='QUOTED').length,aw=ai.filter(o=>o.status==='WIDE').length,ao=ai.filter(o=>o.status==='ONE_SIDED').length,ae=ai.filter(o=>o.status==='EMPTY').length;const pct=ai.length>0?Math.round(aq/ai.length*100):0;const pctCol=pct>80?'var(--grn)':pct>30?'var(--org)':pct>0?'var(--red)':'var(--dim)';const spot=G.spots[asset];
-// Mini grid: each cell = one option, sorted by expiry then strike
-const sorted=[...ai].sort((a,b)=>(a.expiryDate?.getTime()||0)-(b.expiryDate?.getTime()||0)||a.strike-b.strike||(a.cp==='C'?0:1)-(b.cp==='C'?0:1));
-h+=`<div class="qh-card"><div class="qh-hdr"><div><span class="qh-asset">${asset}</span>${spot?` <span class="dim" style="font-size:9px">$${$n(spot.toFixed(asset==='BTC'?0:2))}</span>`:''}</div><div class="qh-pct" style="color:${pctCol}">${pct}%</div></div>`;
-h+=`<div class="qh-bar"><div class="qh-fill" style="width:${pct}%;background:${pctCol}"></div></div>`;
-h+=`<div class="qh-stats"><span>📊 ${ai.length} opts</span><span style="color:var(--grn)">✅ ${aq}</span><span style="color:var(--org)">⚡ ${aw}</span><span style="color:var(--org)">⚠ ${ao}</span><span style="color:var(--red)">❌ ${ae}</span></div>`;
-// Mini heatmap grid
-h+=`<div class="qh-mini-grid" title="Each cell = 1 option. Green=quoted, Orange=wide, Red=empty">`;
-for(const o of sorted.slice(0,200)){const cls={QUOTED:'qh-q',WIDE:'qh-w',ONE_SIDED:'qh-o',EMPTY:'qh-e'}[o.status]||'qh-e';h+=`<div class="qh-cell ${cls}" title="${o.raw} | ${o.status}${o.sprd!=null?' | sprd '+o.sprd.toFixed(1)+'%':''}"></div>`}
-if(sorted.length>200)h+=`<div class="dim" style="font-size:7px;grid-column:1/-1">+${sorted.length-200} more</div>`;
+for(const asset of show){const ai=items.filter(o=>o.asset===asset);const aq=ai.filter(o=>o.status==='QUOTED').length,aw=ai.filter(o=>o.status==='WIDE').length,ao=ai.filter(o=>o.status==='ONE_SIDED').length,ae=ai.filter(o=>o.status==='EMPTY').length;const pct=ai.length?Math.round(aq/ai.length*100):0;const pc=pct>80?'var(--grn)':pct>30?'var(--org)':pct>0?'var(--red)':'var(--dim)';const sp=G.spots[asset];
+const sorted=[...ai].sort((a,b)=>(a.expiryDate?.getTime()||0)-(b.expiryDate?.getTime()||0)||a.strike-b.strike);
+h+=`<div class="qh-card"><div class="qh-hdr"><div><span class="qh-asset">${asset}</span>${sp?` <span class="dim" style="font-size:9px">$${$n(sp.toFixed(['BTC'].includes(asset)?0:2))}</span>`:''} <a href="${ptWebLink(asset)}" target="_blank" class="pt-link">🔗 trade</a></div><div class="qh-pct" style="color:${pc}">${pct}%</div></div>`;
+h+=`<div class="qh-bar"><div class="qh-fill" style="width:${pct}%;background:${pc}"></div></div>`;
+h+=`<div class="qh-stats"><span>📊 ${ai.length}</span><span style="color:var(--grn)">✅${aq}</span><span style="color:var(--org)">⚡${aw}</span><span style="color:var(--org)">⚠${ao}</span><span style="color:var(--red)">❌${ae}</span></div>`;
+h+=`<div class="qh-mini" title="Each cell = 1 option">`;
+for(const o of sorted.slice(0,250)){const cl={QUOTED:'qh-q',WIDE:'qh-w',ONE_SIDED:'qh-o',EMPTY:'qh-e'}[o.status]||'qh-e';h+=`<div class="qh-c ${cl}" title="${o.raw}\n${o.status}${o.sprd!=null?' sprd:'+o.sprd.toFixed(1)+'%':''}${o.bid?' bid:'+o.bid.toFixed(2):''}${o.ask?' ask:'+o.ask.toFixed(2):''}"></div>`}
+if(sorted.length>250)h+=`<div class="dim" style="font-size:7px;grid-column:1/-1">+${sorted.length-250} more</div>`;
 h+=`</div></div>`}
 h+=`</div>`;
-// Expiry breakdown table
-if(qhAsset!=='ALL'){const ai=items.filter(o=>o.asset===qhAsset);const expiries=[...new Set(ai.map(o=>o.expiry))].sort((a,b)=>{const oa=ai.find(o=>o.expiry===a),ob=ai.find(o=>o.expiry===b);return(oa?.expiryDate?.getTime()||0)-(ob?.expiryDate?.getTime()||0)});
-h+=`<div class="card"><div class="card-t" style="margin-bottom:5px">📅 EXPIRY BREAKDOWN — ${qhAsset}</div><div class="tbl-w"><table class="exp-tbl"><thead><tr><th style="text-align:left">Expiry</th><th>Total</th><th>Quoted</th><th>Wide</th><th>1-Sided</th><th>Empty</th><th>Quote %</th><th>Visual</th></tr></thead><tbody>`;
-for(const exp of expiries){const eo=ai.filter(o=>o.expiry===exp);const eq=eo.filter(o=>o.status==='QUOTED').length,ew=eo.filter(o=>o.status==='WIDE').length,es=eo.filter(o=>o.status==='ONE_SIDED').length,ee=eo.filter(o=>o.status==='EMPTY').length;const ep=eo.length>0?Math.round(eq/eo.length*100):0;const ec=ep>80?'var(--grn)':ep>30?'var(--org)':ep>0?'var(--red)':'var(--dim)';
-const barW=80;const qW=Math.round(eq/eo.length*barW),wW=Math.round(ew/eo.length*barW),sW=Math.round(es/eo.length*barW);
-h+=`<tr><td style="font-weight:700;color:var(--tx)">${exp}</td><td>${eo.length}</td><td style="color:var(--grn)">${eq}</td><td style="color:var(--org)">${ew}</td><td style="color:var(--org)">${es}</td><td style="color:var(--red)">${ee}</td><td><span class="exp-pct" style="color:${ec};background:${ec}22">${ep}%</span></td><td><div style="display:flex;height:8px;width:${barW}px;border-radius:2px;overflow:hidden;background:rgba(240,64,64,.15)"><div style="width:${qW}px;background:var(--grn)"></div><div style="width:${wW}px;background:var(--org)"></div><div style="width:${sW}px;background:rgba(240,100,40,.6)"></div></div></td></tr>`}
+// Expiry breakdown for selected asset
+if(qhAsset!=='ALL'){const ai=items.filter(o=>o.asset===qhAsset);const exps=[...new Set(ai.map(o=>o.expiry))].sort((a,b)=>{const oa=ai.find(o=>o.expiry===a),ob=ai.find(o=>o.expiry===b);return(oa?.expiryDate?.getTime()||0)-(ob?.expiryDate?.getTime()||0)});
+h+=`<div class="card"><div class="card-t" style="margin-bottom:5px">📅 EXPIRY BREAKDOWN — ${qhAsset} <a href="${ptWebLink(qhAsset)}" target="_blank" class="pt-link">🔗 Open in ${CFG.label}</a></div><div class="tbl-w"><table class="tbl"><thead><tr><th style="text-align:left">Expiry</th><th>Total</th><th>Quoted</th><th>Wide</th><th>1-Side</th><th>Empty</th><th>%</th><th>Visual</th></tr></thead><tbody>`;
+for(const exp of exps){const eo=ai.filter(o=>o.expiry===exp);const eq=eo.filter(o=>o.status==='QUOTED').length,ew=eo.filter(o=>o.status==='WIDE').length,es=eo.filter(o=>o.status==='ONE_SIDED').length,ee=eo.filter(o=>o.status==='EMPTY').length;const ep=eo.length?Math.round(eq/eo.length*100):0;const ec=ep>80?'var(--grn)':ep>30?'var(--org)':ep>0?'var(--red)':'var(--dim)';
+const bw=80,qw=Math.round(eq/eo.length*bw),ww=Math.round(ew/eo.length*bw),sw=Math.round(es/eo.length*bw);
+h+=`<tr><td style="font-weight:700;color:var(--tx);text-align:left">${exp}</td><td>${eo.length}</td><td style="color:var(--grn)">${eq}</td><td style="color:var(--org)">${ew}</td><td style="color:var(--org)">${es}</td><td style="color:var(--red)">${ee}</td><td><span class="exp-pct" style="color:${ec};background:${ec}22">${ep}%</span></td><td><div style="display:flex;height:8px;width:${bw}px;border-radius:2px;overflow:hidden;background:rgba(240,64,64,.15)"><div style="width:${qw}px;background:var(--grn)"></div><div style="width:${ww}px;background:var(--org)"></div><div style="width:${sw}px;background:rgba(240,100,40,.6)"></div></div></td></tr>`}
 h+=`</tbody></table></div></div>`;
-// Strike detail table for selected asset
-const allOpts=[...ai].sort((a,b)=>a.strike-b.strike||(a.cp==='C'?0:1)-(b.cp==='C'?0:1)||(a.expiryDate?.getTime()||0)-(b.expiryDate?.getTime()||0));
-h+=`<div class="card"><div class="card-t" style="margin-bottom:5px">📋 ALL OPTIONS — ${qhAsset} (${allOpts.length})</div><div class="tbl-w" style="max-height:400px"><table class="tbl"><thead><tr><th>Status</th><th>Symbol</th><th>Expiry</th><th>Strike</th><th>C/P</th><th>Bid</th><th>Ask</th><th>Sprd%</th><th>IV%</th><th>OI</th></tr></thead><tbody>`;
-for(const o of allOpts.slice(0,500)){const sc={EMPTY:'red',ONE_SIDED:'org',WIDE:'org',QUOTED:'grn'}[o.status]||'dim';const sl={EMPTY:'❌',ONE_SIDED:'⚠',WIDE:'⚡',QUOTED:'✅'}[o.status]||'?';
+// Full option list
+h+=`<div class="card"><div class="card-t" style="margin-bottom:5px">📋 ALL — ${qhAsset} (${ai.length})</div><div class="tbl-w" style="max-height:400px"><table class="tbl"><thead><tr><th>St</th><th>Symbol</th><th>Exp</th><th>K</th><th>C/P</th><th>Bid</th><th>Ask</th><th>Sprd%</th><th>IV%</th><th>OI</th></tr></thead><tbody>`;
+const sorted=[...ai].sort((a,b)=>a.strike-b.strike||(a.cp==='C'?0:1)-(b.cp==='C'?0:1));
+for(const o of sorted.slice(0,500)){const sc={EMPTY:'red',ONE_SIDED:'org',WIDE:'org',QUOTED:'grn'}[o.status]||'dim';const sl={EMPTY:'❌',ONE_SIDED:'⚠',WIDE:'⚡',QUOTED:'✅'}[o.status]||'?';
 h+=`<tr><td>${bg(sl,sc)}</td><td style="font-weight:600;color:var(--acc);font-size:8px">${o.raw}</td><td>${o.expiry}</td><td>$${$n(o.strike)}</td><td>${o.cp}</td><td class="${!o.bid?'dim':''}">${o.bid>0?o.bid.toFixed(2):'—'}</td><td class="${!o.ask?'dim':''}">${o.ask>0?o.ask.toFixed(2):'—'}</td><td class="${o.sprd!=null&&o.sprd>=o.dynTh?'risk-hi':'dim'}">${o.sprd!=null?o.sprd.toFixed(1):'—'}</td><td class="dim">${o.iv?(o.iv*100).toFixed(1):'—'}</td><td class="dim">${o.oi||'—'}</td></tr>`}
 h+=`</tbody></table></div></div>`}
 return h}
@@ -294,53 +303,53 @@ return h}
 // ═══════════════════════════════════════════════════════════════
 // ALERTS TAB
 // ═══════════════════════════════════════════════════════════════
-function rAlerts(){const{alerts:al,fAsset,fCat,fSev,fProf,openA}=G;const cats=[...new Set(al.map(a=>a.cat))];const assets=[...new Set(al.map(a=>a.asset))].sort();const fa=al.filter(a=>(fAsset==='ALL'||a.asset===fAsset)&&(fCat==='ALL'||a.cat===fCat)&&(fSev==='ALL'||a.sev===fSev)&&(!fProf||a.profitable));
+function rAL(){const{alerts:al,fAsset,fCat,fSev,fProf,openA}=G;const cats=[...new Set(al.map(a=>a.cat))];const assets=[...new Set(al.map(a=>a.asset))].sort();const fa=al.filter(a=>(fAsset==='ALL'||a.asset===fAsset)&&(fCat==='ALL'||a.cat===fCat)&&(fSev==='ALL'||a.sev===fSev)&&(!fProf||a.profitable));
 const sel=(id,v,os)=>`<select class="flt" onchange="sF('${id}',this.value)">${os.map(o=>`<option${v===o?' selected':''}>${o}</option>`).join('')}</select>`;
-let h=`<div class="filters"><span class="dim" style="font-size:8px">FILTER:</span>${sel('fAsset',fAsset,['ALL',...assets])}${sel('fSev',fSev,['ALL','critical','warning'])}${sel('fCat',fCat,['ALL',...cats])}<label style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" ${fProf?'checked':''} onchange="G.fProf=this.checked;render()"> Profitable</label><span class="dim" style="margin-left:auto;font-size:8px">${fa.length}/${al.length}${G.suppressed?` · <span style="color:var(--org)">${G.suppressed} supp</span>`:''}</span></div>`;
-if(!fa.length)return h+`<div class="empty">${al.length?'No alerts match filters':'✅ No alerts'}</div>`;
-return h+fa.slice(0,100).map(a=>{const id=(a.title+a.cat).replace(/\W/g,'_');return`<div class="alert-row${a.sev==='critical'?' crit':''}${a.isNew?' new-alert':''}${openA===id?' open':''}" onclick="togA('${id}')"><div class="alert-hd">${bg(a.sev==='critical'?'CRIT':'WARN',a.sev==='critical'?'red':'org')}<span class="badge bg-${catCol[a.cat]||'acc'}">${catLbl[a.cat]||a.cat}</span>${bg(a.asset,'acc')}${a.profitable?bg('ACTION','grn'):''}<span class="alert-t">${a.title}</span></div><div class="alert-d">${a.msg}</div></div>`}).join('')}
+let h=`<div class="filters"><span class="dim" style="font-size:8px">FILTER:</span>${sel('fAsset',fAsset,['ALL',...assets])}${sel('fSev',fSev,['ALL','critical','warning'])}${sel('fCat',fCat,['ALL',...cats])}<label style="display:flex;align-items:center;gap:3px;font-size:9px;color:var(--dim);cursor:pointer"><input type="checkbox" ${fProf?'checked':''} onchange="G.fProf=this.checked;render()"> $</label><span class="dim" style="margin-left:auto;font-size:8px">${fa.length}/${al.length}${G.suppressed?` · <span style="color:var(--org)">${G.suppressed} supp</span>`:''}</span></div>`;
+if(!fa.length)return h+`<div class="empty">${al.length?'No match':'✅ No alerts'}</div>`;
+return h+fa.slice(0,100).map(a=>{const id=(a.title+a.cat).replace(/\W/g,'_');return`<div class="alert-row${a.sev==='critical'?' crit':''}${openA===id?' open':''}" onclick="togA('${id}')"><div class="alert-hd">${bg(a.sev==='critical'?'CRIT':'WARN',a.sev==='critical'?'red':'org')}<span class="badge bg-${catCol[a.cat]||'acc'}">${catLbl[a.cat]||a.cat}</span>${bg(a.asset,'acc')}${a.profitable?bg('$','grn'):''}<span class="alert-t">${a.title}</span></div><div class="alert-d">${a.msg}</div></div>`}).join('')}
 
 // ═══════════════════════════════════════════════════════════════
 // PERPS TAB
 // ═══════════════════════════════════════════════════════════════
-function rPerps(){const allP=[...G.ptPerps,...G.mktPerps.filter(p=>p.isPerpetual)];const assets=[...new Set(allP.map(p=>p.asset))].sort();if(!allP.length)return`<div class="empty">No perp data</div>`;let h='';assets.forEach(asset=>{const rows=allP.filter(p=>p.asset===asset&&p.isPerpetual);if(!rows.length)return;h+=`<div class="card"><div class="card-t" style="color:var(--acc);margin-bottom:4px">${asset} PERPETUAL</div><div class="tbl-w"><table class="tbl"><thead><tr><th>Exchange</th><th>Mark</th><th>Basis%</th><th>Funding(bps)</th></tr></thead><tbody>${rows.map(p=>{const isPT=p.ex==='PT';return`<tr${isPT?' style="background:rgba(232,165,21,.04)"':''}><td style="font-weight:${isPT?'800':'600'}${isPT?';color:var(--acc)':''}">${p.ex}${isPT?' ★':''}</td><td>${$$(p.mark)}</td><td class="${Math.abs(p.basis)>.05?'risk-md':'dim'}">${p.basis.toFixed(4)}%</td><td class="${p.funding!=null?(p.funding>0?'pos':'neg'):'dim'}">${p.funding!=null?(p.funding*10000).toFixed(2):'—'}</td></tr>`}).join('')}</tbody></table></div></div>`});return h}
+function rPP(){const allP=[...G.ptPerps,...G.mktPerps.filter(p=>p.isPerpetual)];const assets=[...new Set(allP.map(p=>p.asset))].sort();if(!allP.length)return`<div class="empty">No perp data</div>`;let h='';assets.forEach(a=>{const rows=allP.filter(p=>p.asset===a&&p.isPerpetual);if(!rows.length)return;h+=`<div class="card"><div class="card-t" style="color:var(--acc);margin-bottom:4px">${a} PERP <a href="${ptWebLink(a,'perpetuals')}" target="_blank" class="pt-link">🔗</a></div><div class="tbl-w"><table class="tbl"><thead><tr><th>Ex</th><th>Mark</th><th>Basis%</th><th>Fund(bps)</th></tr></thead><tbody>${rows.map(p=>{const isPT=p.ex==='PT';return`<tr${isPT?' style="background:rgba(232,165,21,.04)"':''}><td style="font-weight:${isPT?'800':'600'}${isPT?';color:var(--acc)':''}">${p.ex}${isPT?' ★':''}</td><td>${$$(p.mark)}</td><td class="dim">${p.basis.toFixed(4)}%</td><td class="${p.funding!=null?(p.funding>0?'pos':'neg'):'dim'}">${p.funding!=null?(p.funding*10000).toFixed(2):'—'}</td></tr>`}).join('')}</tbody></table></div></div>`});return h}
 
 // ═══════════════════════════════════════════════════════════════
 // CONFIG TAB
 // ═══════════════════════════════════════════════════════════════
-function rConf(){const bl=G.baseline;const inp=(l,k,u,s=1)=>`<div class="th-row"><span class="th-l">${l}</span><input class="th-i" type="number" value="${G.th[k]}" step="${s}" min="0" onchange="sTh('${k}',+this.value)"/><span class="th-u">${u}</span></div>`;
-return`<div class="grid g3"><div class="card"><div class="card-t" style="color:var(--acc);margin-bottom:7px">📸 BASELINE</div><button class="btn ${bl?'btn-grn':'btn-a'}" style="width:100%;margin-bottom:4px;padding:5px" onclick="doCapture()">📸 ${bl?'RE-CAPTURE':'CAPTURE'} BASELINE</button>${bl?`<div style="font-size:8px;color:var(--dim);line-height:1.6;margin-top:4px">Captured: <b>${new Date(bl.timestamp).toLocaleTimeString()}</b> (${ago(bl.timestamp)})<br>Live: <b>${bl.quotedCount}</b>/${bl.totalCount}<br>Buckets: <b>${Object.keys(bl.buckets).length}</b></div>`:''}<div class="th-row" style="margin-top:7px"><span class="th-l">Auto-recapture</span><input class="th-i" type="number" value="${G.autoBlH}" step="1" min="0" onchange="G.autoBlH=+this.value"/><span class="th-u">hrs</span></div>${inp('Warn mult','blWarn','×p95',0.5)}${inp('Crit mult','blCrit','×p95',0.5)}</div>
-<div class="card"><div class="card-t" style="color:var(--prp);margin-bottom:7px">📊 CROSS-EXCHANGE</div>${inp('PT vs Market','ptVsMkt','%',1)}${inp('IV Arb','ivArb','vol pts',1)}${inp('Perp basis','perpBps','bps',1)}${inp('Funding','fundBps','bps',1)}</div>
-<div class="card"><div class="card-t" style="color:var(--cyn);margin-bottom:7px">💧 FILTERS</div>${inp('Min ext vol','minExtVol','$',10000)}${inp('Min ext OI','minExtOI','contracts',1)}<div class="th-row"><span class="th-l">Refresh</span><input class="th-i" type="number" value="${G.refreshMs/1000}" step="5" min="10" onchange="sR(+this.value*1000)"/><span class="th-u">sec</span></div></div>
-<div class="card"><div class="card-t" style="color:var(--org);margin-bottom:7px">🔌 CONNECTION</div><div style="font-size:8px;color:var(--dim);line-height:1.7"><b>ENV:</b> <span class="${ENV_CLASS}" style="padding:1px 5px">${ENV_LABEL}</span><br><b>PT API:</b> <span style="color:var(--acc)">${PT_API}</span><br><b>PT Assets:</b> ${[...G.ptAssets].sort().join(', ')||'none'}<br><b>External:</b> Deribit(${EXT_ASSETS.Deribit.join(',')}) · OKX(${EXT_ASSETS.OKX.join(',')}) · Bybit(${EXT_ASSETS.Bybit.join(',')}) · CoinCall(auto)</div></div></div>${G.errors.length?`<div class="card" style="margin-top:6px"><div class="card-t" style="color:var(--red);margin-bottom:3px">⚠ Errors (${G.errors.length})</div><div class="dim" style="font-size:8px;line-height:1.5;max-height:150px;overflow:auto">${G.errors.map(e=>`• ${e}`).join('<br>')}</div></div>`:''}`}
+function rCF(){const bl=G.baseline;const inp=(l,k,u,s=1)=>`<div class="th-row"><span class="th-l">${l}</span><input class="th-i" type="number" value="${G.th[k]}" step="${s}" min="0" onchange="sTh('${k}',+this.value)"/><span class="th-u">${u}</span></div>`;
+return`<div class="grid g3"><div class="card"><div class="card-t" style="color:var(--acc);margin-bottom:7px">📸 BASELINE</div><button class="btn ${bl?'btn-grn':'btn-a'}" style="width:100%;margin-bottom:4px;padding:5px" onclick="doCapture()">📸 ${bl?'RE-CAPTURE':'CAPTURE'}</button>${bl?`<div style="font-size:8px;color:var(--dim);line-height:1.6;margin-top:4px">Captured: <b>${new Date(bl.timestamp).toLocaleTimeString()}</b> (${ago(bl.timestamp)})<br>Live: <b>${bl.quotedCount}</b>/${bl.totalCount}</div>`:''}<div class="th-row" style="margin-top:7px"><span class="th-l">Auto-recapture</span><input class="th-i" type="number" value="${G.autoBlH}" step="1" min="0" onchange="G.autoBlH=+this.value"/><span class="th-u">hrs</span></div>${inp('Warn mult','blWarn','×p95',.5)}${inp('Crit mult','blCrit','×p95',.5)}</div>
+<div class="card"><div class="card-t" style="color:var(--prp);margin-bottom:7px">📊 CROSS-EX</div>${inp('PT vs Mkt','ptVsMkt','%',1)}${inp('IV Arb','ivArb','vp',1)}${inp('Perp','perpBps','bps',1)}${inp('Funding','fundBps','bps',1)}</div>
+<div class="card"><div class="card-t" style="color:var(--cyn);margin-bottom:7px">💧 FILTERS</div>${inp('Min ext vol','minExtVol','$',10000)}${inp('Min ext OI','minExtOI','cts',1)}<div class="th-row"><span class="th-l">Refresh</span><input class="th-i" type="number" value="${G.refreshMs/1000}" step="5" min="10" onchange="sR(+this.value*1000)"/><span class="th-u">sec</span></div></div>
+<div class="card"><div class="card-t" style="color:var(--org);margin-bottom:7px">🔌 CONNECTION</div><div style="font-size:8px;color:var(--dim);line-height:1.8"><b>ENV:</b> <span class="${CFG.cls}" style="padding:1px 5px">${CFG.label}</span><br><b>REST API:</b> <span style="color:var(--acc)">${PT_API}</span><br><b>REST URLs tried:</b> ${CFG.restUrls.join(', ')}<br><b>Web UI:</b> <a href="${CFG.webBase}" target="_blank">${CFG.webBase}</a><br><b>PT Assets (${[...G.ptAssets].length}):</b> ${[...G.ptAssets].sort().map(a=>`<a href="${ptWebLink(a)}" target="_blank" style="color:var(--cyn)">${a}</a>`).join(' · ')||'none'}<br><b>External:</b> Deribit(${EXT_ASSETS.Deribit.join(',')}) · OKX(${EXT_ASSETS.OKX.join(',')}) · Bybit(${EXT_ASSETS.Bybit.join(',')}) · CoinCall(auto)</div></div></div>${G.errors.length?`<div class="card" style="margin-top:6px"><div class="card-t" style="color:var(--red);margin-bottom:3px">⚠ Errors (${G.errors.length})</div><div class="dim" style="font-size:8px;line-height:1.5;max-height:150px;overflow:auto">${G.errors.map(e=>`• ${e}`).join('<br>')}</div></div>`:''}`}
 
 // ═══════════════════════════════════════════════════════════════
 // MAIN RENDER
 // ═══════════════════════════════════════════════════════════════
 function render(){const{tab,tick,live,loading,conn,spots,alerts,ptOpts,mktOpts,lastUp}=G;const items=G.ptItems||[];const bl=G.baseline;const blH=calcBlHealth();const nc=alerts.filter(a=>a.sev==='critical').length;
-const hp=blH?blH.quoterHealth:(items.length>0?Math.round(items.filter(o=>o.status==='QUOTED').length/items.length*100):0);const hCol=hp>=80?'var(--grn)':hp>=50?'var(--org)':'var(--red)';
-const qr=items.length>0?Math.round(items.filter(o=>o.status==='QUOTED').length/items.length*100):0;
+const qr=items.length?Math.round(items.filter(o=>o.status==='QUOTED').length/items.length*100):0;
+const hp=blH?blH.quoterHealth:qr;const hc=hp>=80?'var(--grn)':hp>=50?'var(--org)':'var(--red)';
 const tabs=[{id:'quotehealth',l:'📊 QUOTE HEALTH'},{id:'alerts',l:'🚨 ALERTS',n:alerts.length},{id:'perps',l:'📈 PERPS'},{id:'config',l:'⚙ CONFIG'}];
-const blAge=bl?((Date.now()-bl.timestamp)/3600000):null;const blAgeCol=blAge==null?'var(--dim)':blAge<2?'var(--grn)':blAge<8?'var(--org)':'var(--red)';
-const ch=Object.entries(conn).map(([ex,c])=>{const cl=c.ok?'ok':(loading?'load':'err');const isPT=ex==='PT';return`<div class="conn ${cl}"><div class="dot" style="background:${c.ok?'var(--grn)':(loading?'var(--acc)':'var(--red)')}"></div><span style="color:${isPT&&c.ok?'var(--acc)':(c.ok?'var(--grn)':'var(--dim)')};font-weight:${isPT?'800':'600'}">${ex}${isPT?' ★':''}</span>${c.ok?`<span class="dim">${c.n}·${c.lat}ms</span>`:(loading?'<span class="spinner"></span>':`<span class="dim">fail</span>`)}</div>`}).join('');
-const sh=Object.entries(spots).slice(0,15).map(([a,p])=>`<span class="spot-item">${a} <b style="color:var(--acc)">$${$n(p.toFixed(['BTC','MSTRX','MNT10000'].includes(a)?0:2))}</b></span>`).join('');
+const blAge=bl?((Date.now()-bl.timestamp)/3600000):null;const blAC=blAge==null?'var(--dim)':blAge<2?'var(--grn)':blAge<8?'var(--org)':'var(--red)';
+const ch=Object.entries(conn).map(([ex,c])=>{const cl=c.ok?'ok':(loading?'load':'err');const ip=ex==='PT';return`<div class="conn ${cl}"><div class="dot" style="background:${c.ok?'var(--grn)':(loading?'var(--acc)':'var(--red)')}"></div><span style="color:${ip&&c.ok?'var(--acc)':(c.ok?'var(--grn)':'var(--dim)')};font-weight:${ip?'800':'600'}">${ex}${ip?' ★':''}</span>${c.ok?`<span class="dim">${c.n}·${c.lat}ms</span>`:(loading?'<span class="spinner"></span>':`<span class="dim">err</span>`)}</div>`}).join('');
+const sh=Object.entries(spots).slice(0,15).map(([a,p])=>`<span class="spot-item"><a href="${ptWebLink(a)}" target="_blank" style="color:var(--tx);text-decoration:none">${a}</a> <b style="color:var(--acc)">$${$n(p.toFixed(a==='BTC'?0:2))}</b></span>`).join('');
 document.getElementById('app').innerHTML=`
-<div class="hdr"><div class="logo"><div class="logo-i">🚨</div><div><div class="logo-t">POWERTRADE POLICE</div><div class="logo-s">v5.1 · <span class="${ENV_CLASS}" style="padding:0 4px">${ENV_LABEL}</span> · ${[...G.ptAssets].length} assets</div></div></div>
+<div class="hdr"><div class="logo"><div class="logo-i">🚨</div><div><div class="logo-t">POWERTRADE POLICE</div><div class="logo-s">v5.1 · <span class="${CFG.cls}" style="padding:0 4px">${CFG.label}</span> · ${[...G.ptAssets].length} assets · <a href="${CFG.webBase}" target="_blank" style="color:var(--cyn);font-size:7px">${CFG.webBase.replace('https://','')}</a></div></div></div>
 <div class="hdr-r">${loading?'<span class="spinner"></span>':''}
-<div class="bl-age" style="color:${blAgeCol};border-color:${blAgeCol}40">📸 ${bl?ago(bl.timestamp):'none'}</div>
-<button class="btn btn-grn" onclick="doCapture()">📸 BL</button>
+<div class="bl-age" style="color:${blAC};border-color:${blAC}40">📸 ${bl?ago(bl.timestamp):'none'}</div>
+<button class="btn btn-grn" onclick="doCapture()">📸</button>
 <div class="dot" style="background:${live?'var(--grn)':'var(--dim)'}${live?';animation:pulse 2s infinite':''}"></div>
 <button class="btn" onclick="tL()">${live?`LIVE ${G.refreshMs/1000}s`:'PAUSED'}</button>
 <button class="btn btn-a" onclick="refresh()">↻</button>
-<button class="btn" onclick="exportCSV()">⬇CSV</button></div></div>
-<div class="conn-bar">${ch}<span style="margin-left:auto" class="dim" style="font-size:8px">${ptOpts.length} PT · ${mktOpts.length} mkt · ${[...G.ptAssets].length} assets</span></div>
+<button class="btn" onclick="exportCSV()">⬇</button></div></div>
+<div class="conn-bar">${ch}<span style="margin-left:auto" class="dim">${ptOpts.length} PT · ${mktOpts.length} mkt</span></div>
 ${sh?`<div class="spot-bar">${sh}</div>`:''}
 <div class="kpi-bar"><div class="kpi"><div class="kpi-l">Quote Rate</div><div class="kpi-v" style="color:${qr>50?'var(--grn)':qr>10?'var(--org)':'var(--red)'}">${qr}%</div><div class="kpi-s">${items.filter(o=>o.status==='QUOTED').length}/${items.length}</div></div>
-${bl?`<div class="kpi"><div class="kpi-l">Quoter Health</div><div class="kpi-v" style="color:${hCol}">${hp}%</div></div><div class="kpi"><div class="kpi-l">Coverage</div><div class="kpi-v" style="color:${(blH?.coverage||0)>=90?'var(--grn)':'var(--org)'}">${blH?.coverage||0}%</div></div><div class="kpi"><div class="kpi-l">Drift</div><div class="kpi-v" style="color:${(blH?.spreadDrift||1)<=1.3?'var(--grn)':'var(--org)'}">${blH?.spreadDrift?.toFixed(2)||'—'}x</div></div>`:''}
+${bl?`<div class="kpi"><div class="kpi-l">Quoter</div><div class="kpi-v" style="color:${hc}">${hp}%</div></div><div class="kpi"><div class="kpi-l">Drift</div><div class="kpi-v" style="color:${(blH?.spreadDrift||1)<=1.3?'var(--grn)':'var(--org)'}">${blH?.spreadDrift?.toFixed(2)||'—'}x</div></div>`:''}
 <div class="kpi"><div class="kpi-l">Critical</div><div class="kpi-v" style="color:var(--red)">${nc}</div></div><div class="kpi"><div class="kpi-l">Assets</div><div class="kpi-v" style="color:var(--acc)">${[...G.ptAssets].length}</div></div></div>
 <div class="tabs">${tabs.map(t=>`<button class="tab${tab===t.id?' on':''}" onclick="sTab('${t.id}')">${t.l}${t.n!=null?`<span class="cnt">${t.n}</span>`:''}</button>`).join('')}</div>
-<div class="main">${tab==='quotehealth'?rQuoteHealth():tab==='alerts'?rAlerts():tab==='perps'?rPerps():tab==='config'?rConf():''}</div>
-<div class="footer"><span>VIVI Risk · PT Police v5.1 · ${ENV_LABEL} · ${PT_API}</span><span>${lastUp?lastUp.toISOString():''}</span></div>`}
+<div class="main">${tab==='quotehealth'?rQH():tab==='alerts'?rAL():tab==='perps'?rPP():tab==='config'?rCF():''}</div>
+<div class="footer"><span>VIVI Risk · PT Police v5.1 · ${CFG.label} · ${PT_API}</span><span>${lastUp?lastUp.toISOString():''}</span></div>`}
 
 // ═══════════════════════════════════════════════════════════════
 // EVENTS
