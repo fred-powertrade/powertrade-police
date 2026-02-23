@@ -10,8 +10,8 @@ const path = require('path');
 // ── Config from environment ─────────────────────────────────────
 const ENV = process.env.PT_ENV || 'testnet'; // 'testnet' or 'prod'
 const PT_API = ENV === 'prod'
-  ? 'https://powertrade-web-test.web.app/trade'
-  : 'https://powertrade-web-test.web.app/trade';
+  ? 'https://powertrade-web-test.web.app/'
+  : 'https://powertrade-web-test.web.app/';
 const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK || '';
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
